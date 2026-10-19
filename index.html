@@ -117,10 +117,11 @@
     .brand-logo-img {
       width: 40px;
       height: 40px;
-      border-radius: 50%;
+      border-radius: 6px;
       object-fit: cover;
-      border: 1.5px solid var(--accent);
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+      object-position: center;
+      border: 1.5px solid var(--text);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
       transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
       display: block;
     }
@@ -155,20 +156,24 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 9px 16px;
+      padding: 11px 18px;
       border-radius: var(--radius);
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 700;
       letter-spacing: 0.5px;
       cursor: pointer;
-      border: 1px solid transparent;
+      border: 1.5px solid var(--text);
+      background: #fdfbf7;
+      color: var(--text);
       transition: transform 0.16s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
       user-select: none;
     }
 
     .btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(28, 31, 38, 0.15);
+      box-shadow: 0 4px 14px rgba(26, 28, 34, 0.14);
+      background: #f0e6d2;
+      border-color: var(--text);
     }
 
     .btn:active {
@@ -176,21 +181,22 @@
     }
 
     .btn-primary {
-      background: var(--accent);
-      color: var(--bg);
-      border-color: var(--accent);
-      box-shadow: 0 2px 8px var(--accent-glow);
+      background: #f5eddd;
+      color: var(--text);
+      border: 1.5px solid var(--text);
+      box-shadow: 0 2px 6px rgba(26, 28, 34, 0.08);
+      font-weight: 700;
     }
     .btn-primary:hover {
-      background: var(--accent-hover);
-      border-color: var(--accent-hover);
-      box-shadow: 0 4px 14px rgba(28, 31, 38, 0.25);
+      background: #e9dcbf;
+      border-color: var(--text);
+      box-shadow: 0 4px 14px rgba(26, 28, 34, 0.16);
     }
 
     .btn-danger {
       background: #fbeceb;
       color: var(--danger);
-      border-color: #f3c4c2;
+      border: 1.5px solid #dc2626;
     }
     .btn-danger:hover {
       background: #f7dbd9;
@@ -198,18 +204,19 @@
     }
 
     .btn-secondary {
-      background: #ece3d2;
+      background: #ede4d1;
       color: var(--text);
-      border-color: #d4c7b2;
+      border: 1.5px solid #525866;
+      font-weight: 700;
     }
     .btn-secondary:hover {
-      background: #e2d6c1;
-      border-color: #bfae95;
+      background: #e2d4bc;
+      border-color: var(--text);
     }
 
     .btn-large {
-      padding: 13px 22px;
-      font-size: 14px;
+      padding: 14px 24px;
+      font-size: 15px;
       border-radius: var(--radius);
       width: 100%;
     }
@@ -218,26 +225,29 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 16px;
-      padding: 8px 14px;
-      font-size: 12px;
+      margin-bottom: 18px;
+      padding: 10px 18px;
+      font-size: 13px;
       font-weight: 700;
-      background: #ede3d1;
-      border: 1px solid #d8cbaf;
+      background: #ede4d1;
+      border: 1.5px solid var(--text);
       color: var(--text);
       border-radius: var(--radius);
       cursor: pointer;
+      box-shadow: 0 2px 6px rgba(26, 28, 34, 0.06);
     }
     .btn-back-home:hover {
-      background: #e4d7c0;
-      border-color: var(--accent);
+      background: #e2d4bc;
+      border-color: var(--text);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(26, 28, 34, 0.12);
     }
 
     /* Main Container */
     main {
       flex: 1;
-      padding: 16px 20px;
-      max-width: 1140px;
+      padding: 22px 24px;
+      max-width: 1280px;
       margin: 0 auto;
       width: 100%;
       display: flex;
@@ -283,43 +293,46 @@
     #tab-landing.active {
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: center;
+      gap: 20px;
       flex: 1;
     }
 
     .hero-box {
       background: var(--card-bg);
-      border: 1px solid var(--card-border);
+      border: 1.5px solid var(--card-border);
       border-radius: var(--radius);
-      padding: 14px 20px;
+      padding: 20px 24px;
       text-align: center;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin-bottom: 14px;
+      margin-bottom: 0px;
     }
 
     .hero-avatar {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
+      width: 96px;
+      height: 96px;
+      border-radius: 8px;
       object-fit: cover;
-      border: 2px solid var(--accent);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
-      margin-bottom: 10px;
-      transition: transform 0.2s ease;
+      object-position: center;
+      border: 2px solid var(--text);
+      box-shadow: 0 4px 16px rgba(26, 28, 34, 0.12);
+      margin-bottom: 14px;
+      display: block;
+      transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
     .hero-avatar:hover {
-      transform: scale(1.06);
+      transform: scale(1.05);
     }
 
     .ascii-hero-wrap {
       background: #fbf7ee;
-      border: 1px solid var(--card-border);
+      border: 1.5px solid var(--card-border);
       border-radius: var(--radius);
-      padding: 8px 14px;
-      margin-bottom: 8px;
+      padding: 10px 16px;
+      margin-bottom: 12px;
       max-width: 100%;
       overflow-x: auto;
     }
@@ -327,7 +340,7 @@
     .ascii-art {
       font-family: var(--font-mono) !important;
       font-size: 11px;
-      line-height: 1.16;
+      line-height: 1.15;
       color: var(--text);
       letter-spacing: 0px;
       white-space: pre;
@@ -337,10 +350,11 @@
     }
 
     .hero-desc {
-      font-size: 13px;
+      font-size: 15px;
+      font-weight: 500;
       color: var(--text-muted);
-      line-height: 1.45;
-      max-width: 740px;
+      line-height: 1.55;
+      max-width: 840px;
       margin: 0 auto;
     }
 
@@ -348,62 +362,254 @@
     .action-cards-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      margin-top: auto;
-      margin-bottom: 6px;
+      gap: 18px;
+      margin-top: 4px;
+      margin-bottom: 0px;
     }
 
     .action-card {
       background: var(--card-bg);
-      border: 1px solid var(--card-border);
+      border: 1.5px solid var(--card-border);
       border-radius: var(--radius);
-      padding: 16px;
+      padding: 22px 18px;
       display: flex;
       flex-direction: column;
       cursor: pointer;
       transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.18s ease, box-shadow 0.18s ease;
       position: relative;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
     }
 
     .action-card:hover {
-      transform: translateY(-3px);
-      border-color: var(--card-border-strong);
-      box-shadow: 0 6px 20px rgba(28, 31, 38, 0.09);
+      transform: translateY(-4px);
+      border-color: var(--text);
+      box-shadow: 0 8px 24px rgba(28, 31, 38, 0.12);
     }
 
     .action-card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .action-card-badge {
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
-      color: var(--text-muted);
+      color: var(--text);
       letter-spacing: 1px;
+      background: #ede4d1;
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid #dcceb4;
     }
 
     .action-card-icon {
-      font-size: 20px;
+      font-size: 24px;
       color: var(--text);
     }
 
     .action-card-title {
-      font-size: 15px;
+      font-size: 17px;
       font-weight: 700;
       color: var(--text);
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       letter-spacing: 0.5px;
     }
 
     .action-card-desc {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 18px;
+      flex: 1;
+    }
+
+    /* Two-Color Architecture Flow Styles */
+    .arch-flow {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 16px;
+      align-items: stretch;
+      margin-top: 14px;
+    }
+
+    .arch-pipeline {
+      background: #fbf7ee;
+      border: 1.5px solid var(--text);
+      border-radius: var(--radius);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .arch-pipeline-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1.5px solid #ded3bf;
+      margin-bottom: 14px;
+    }
+
+    .arch-pipeline-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.5px;
+    }
+
+    .arch-pipeline-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .arch-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .arch-step {
+      background: #fffdf9;
+      border: 1px solid #ded3bf;
+      border-radius: 6px;
+      padding: 12px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      transition: border-color 0.16s ease, transform 0.16s ease;
+    }
+
+    .arch-step:hover {
+      border-color: var(--text);
+      transform: translateX(3px);
+    }
+
+    .arch-step-num {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      background: #eee4d1;
+      border: 1px solid #d8cbaf;
+      padding: 3px 7px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+    }
+
+    .arch-step-body {
+      flex: 1;
+    }
+
+    .arch-step-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .arch-step-desc {
       font-size: 12px;
       color: var(--text-muted);
-      line-height: 1.4;
-      margin-bottom: 14px;
+      line-height: 1.45;
+      margin-bottom: 6px;
+    }
+
+    .arch-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      background: #ede4d1;
+      border: 1px solid #d8cbaf;
+      color: var(--text);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+    }
+
+    .arch-step-arrow {
+      text-align: center;
+      color: var(--text);
+      font-weight: 900;
+      font-size: 14px;
+      line-height: 1;
+      user-select: none;
+    }
+
+    .arch-diode-bridge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 6px;
+    }
+
+    .arch-diode-core {
+      background: #fffdf9;
+      border: 2px dashed var(--text);
+      border-radius: var(--radius);
+      padding: 18px 14px;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(26, 28, 34, 0.06);
+      max-width: 200px;
+    }
+
+    .arch-diode-icon {
+      font-size: 28px;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .arch-diode-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .arch-diode-desc {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+
+    .arch-diode-tag {
+      font-size: 9.5px;
+      font-weight: 700;
+      background: #ede4d1;
+      border: 1px solid #d8cbaf;
+      color: var(--text);
+      padding: 4px 6px;
+      border-radius: 4px;
+      line-height: 1.35;
+    }
+
+    .arch-diode-line {
       flex: 1;
+      width: 2px;
+      background: repeating-linear-gradient(to bottom, var(--text) 0, var(--text) 6px, transparent 6px, transparent 12px);
+      margin: 8px 0;
+    }
+
+    @media (max-width: 900px) {
+      .arch-flow {
+        grid-template-columns: 1fr;
+      }
+      .arch-diode-bridge {
+        flex-direction: row;
+        padding: 14px 0;
+      }
+      .arch-diode-core {
+        max-width: 100%;
+        width: 100%;
+      }
+      .arch-diode-line {
+        display: none;
+      }
     }
 
     /* Uniqueness & Features Grid in Know More Tab */
@@ -937,15 +1143,16 @@
         <img src="icons/logo.jpg" alt="Sabrina Logo" class="hero-avatar">
         <div class="ascii-hero-wrap">
           <pre class="ascii-art">
-+-------------------------------------------------------------------------------------------+
-|    ____    _    ____  ____  ___ _   _    _       ____  _   _    _    ____  _____ ____     |
-|   / ___|  / \  | __ )|  _ \|_ _| \ | |  / \     / ___|| | | |  / \  |  _ \| ____/ ___|    |
-|   \___ \ / _ \ |  _ \| |_) || ||  \| | / _ \    \___ \| |_| | / _ \ | |_) |  _| \___ \    |
-|    ___) / ___ \| |_) |  _ &lt; | || |\  |/ ___ \    ___) |  _  |/ ___ \|  _ &lt;| |___ ___) |   |
-|   |____/_/   \_\____/|_| \_\___|_| \_/_/   \_\  |____/|_| |_/_/   \_\_| \_\_____|____/    |
-|                                                                                           |
-|                  OPTICAL TRANSMISSION DIODE // ZERO PERSISTENCE RAM HEAP                  |
-+-------------------------------------------------------------------------------------------+
++-------------------------------------------------------------------------------------------------------------+
+|  ███████╗ █████╗ ██████╗ ██████╗ ██╗███╗   ██╗ █████╗     ███████╗██╗  ██╗ █████╗ ██████╗ ███████╗███████╗  |
+|  ██╔════╝██╔══██╗██╔══██╗██╔══██╗██║████╗  ██║██╔══██╗    ██╔════╝██║  ██║██╔══██╗██╔══██╗██╔════╝██╔════╝  |
+|  ███████╗███████║██████╔╝██████╔╝██║██╔██╗ ██║███████║    ███████╗███████║███████║██████╔╝█████╗  ███████╗  |
+|  ╚════██║██╔══██║██╔══██╗██╔══██╗██║██║╚██╗██║██╔══██║    ╚════██║██╔══██║██╔══██║██╔══██╗██╔══╝  ╚════██║  |
+|  ███████║██║  ██║██████╔╝██║  ██║██║██║ ╚████║██║  ██║    ███████║██║  ██║██║  ██║██║  ██║███████╗███████║  |
+|  ╚══════╝╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝    ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝  |
+|                                                                                                             |
+|                           OPTICAL TRANSMISSION DIODE // ZERO PERSISTENCE RAM HEAP                           |
++-------------------------------------------------------------------------------------------------------------+
           </pre>
         </div>
         <p class="hero-desc">
@@ -981,7 +1188,7 @@
             Point camera at the emitting screen. Web Worker peeling solver recovers missing frames on the fly, verifies SHA-256, and terminates automatically.
           </p>
           <button class="btn btn-primary" id="landing-btn-receive" style="width: 100%; margin-top: auto;">
-            [ SCAN &amp; DECODE ] &rarr;
+            [ RECEIVE FILE ] &rarr;
           </button>
         </div>
 
@@ -1021,73 +1228,157 @@
     <div class="tab-pane" id="tab-know-more">
       <button class="btn btn-secondary btn-back-home">&larr; [ BACK TO OVERVIEW ]</button>
 
-      <!-- System Architecture Diagram -->
+      <!-- System Architecture Diagram (Two-Color Visual Flowchart) -->
       <div class="card">
         <div class="card-title">
           <span>// PROTOCOL &amp; PIPELINE ARCHITECTURE</span>
           <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">[SPEC: RFC-LT-V1]</span>
         </div>
-        <div style="background: #fbf7ee; border: 1px solid var(--card-border); border-radius: var(--radius); padding: 12px; overflow-x: auto;">
-          <pre class="ascii-art">
-+-----------------------------------------------------------------------------------------+
-|                              TRANSMITTER PIPELINE (SENDER)                              |
-+-----------------------------------------------------------------------------------------+
-|                                                                                         |
-|   [ SOURCE FILE (Up to 10 MB) ]                                                         |
-|                 |                                                                       |
-|                 v                                                                       |
-|   +---------------------------+       +---------------------------+                     |
-|   |   fflate DEFLATE COMPRESS | ----&gt; |   AES-256-GCM ENCRYPTION  | (Optional WebCrypto)|
-|   |  (Applied if size shrinks)|       |  (PBKDF2-SHA256, 200k iter|                     |
-|   +---------------------------+       +---------------------------+                     |
-|                                                     |                                   |
-|                                                     v                                   |
-|   +---------------------------------------------------------------------------------+   |
-|   |                        LUBY TRANSFORM (LT) FOUNTAIN CODE                        |   |
-|   |   - Partitioned into K source blocks (128B - 768B)                              |   |
-|   |   - Deterministic seed generates Soliton distribution degree &amp; neighbor indices |   |
-|   |   - XORs source blocks into rateless droplets (1.15x overhead requirement)      |   |
-|   +---------------------------------------------------------------------------------+   |
-|                                                     |                                   |
-|                                                     v                                   |
-|   +---------------------------------------------------------------------------------+   |
-|   |                            OPTICAL QR EMITTER ENGINE                            |   |
-|   |   - Modes: 1x1 Single QR, 2x2 Grid (4 codes/frame), 3x3 Grid (9 codes/frame)    |   |
-|   |   - Offscreen canvas pre-render ring buffer with requestAnimationFrame loop     |   |
-|   +---------------------------------------------------------------------------------+   |
-|                                                                                         |
-+-----------------------------------------------------------------------------------------+
-                                              |
-                          ~~~~~~~~~~~~~~~~~~~~| (PHYSICAL OPTICAL DIODE) ~~~~~~~~~~~~~~~~~~~~
-                                              v
-+-----------------------------------------------------------------------------------------+
-|                               RECEIVER PIPELINE (CAMERA)                                |
-+-----------------------------------------------------------------------------------------+
-|                                                                                         |
-|   +---------------------------------------------------------------------------------+   |
-|   |                            OPTICAL SENSOR (CAMERA)                              |   |
-|   |   - High-resolution getUserMedia stream with BarcodeDetector hardware API       |   |
-|   |   - Fallback multi-region tiled jsQR optical scanner                            |   |
-|   +---------------------------------------------------------------------------------+   |
-|                                                     |                                   |
-|                                                     v                                   |
-|   +---------------------------------------------------------------------------------+   |
-|   |                      WEB WORKER PEELING &amp; SOLVER ENGINE                         |   |
-|   |   - CRC32 verification &amp; Session ID filter (drops corrupt / foreign packets)   |   |
-|   |   - Ripple queue degree-1 back-substitution (Uint32Array fast bitwise XOR)      |   |
-|   |   - Gaussian elimination residual fallback when peeling stalls near 100%        |   |
-|   +---------------------------------------------------------------------------------+   |
-|                                                     |                                   |
-|                                                     v                                   |
-|   +---------------------------------------------------------------------------------+   |
-|   |                     SHA-256 VERIFICATION &amp; AUTO-TERMINATION                    |   |
-|   |   - Verified against sender metadata SHA-256 digest                             |   |
-|   |   - Camera deactivated immediately to save power &amp; lock state                   |   |
-|   |   - Download presented &amp; auto-wipe zeroes all RAM buffers                       |   |
-|   +---------------------------------------------------------------------------------+   |
-|                                                                                         |
-+-----------------------------------------------------------------------------------------+
-          </pre>
+
+        <div class="arch-flow">
+          <!-- Column 1: Transmitter Pipeline -->
+          <div class="arch-pipeline">
+            <div class="arch-pipeline-header">
+              <span class="yd" style="font-size: 22px;">S</span>
+              <div>
+                <div class="arch-pipeline-title">TRANSMITTER PIPELINE (SENDER)</div>
+                <div class="arch-pipeline-sub">SCREEN EMISSION ENGINE &bull; ZERO RF</div>
+              </div>
+            </div>
+
+            <div class="arch-steps">
+              <div class="arch-step">
+                <div class="arch-step-num">01</div>
+                <div class="arch-step-body">
+                  <div class="arch-step-title">SOURCE PAYLOAD INGESTION</div>
+                  <div class="arch-step-desc">File read into in-memory Uint8Array (max 10 MB). Cryptographic SHA-256 digest computed natively in volatile RAM.</div>
+                  <span class="arch-badge">Volatile Heap</span>
+                </div>
+              </div>
+
+              <div class="arch-step-arrow">&darr;</div>
+
+              <div class="arch-step">
+                <div class="arch-step-num">02</div>
+                <div class="arch-step-body">
+                  <div class="arch-step-title">DEFLATE LOSSLESS COMPRESSION</div>
+                  <div class="arch-step-desc">Synchronous fflate compression. If compressed size is &lt; 98% of original, deflated stream is chosen; otherwise raw payload retained.</div>
+                  <span class="arch-badge">fflate Engine</span>
+                </div>
+              </div>
+
+              <div class="arch-step-arrow">&darr;</div>
+
+              <div class="arch-step">
+                <div class="arch-step-num">03</div>
+                <div class="arch-step-body">
+                  <div class="arch-step-title">AES-256-GCM WEB CRYPTO HARDENING</div>
+                  <div class="arch-step-desc">Optional encryption. Key derived via PBKDF2-SHA256 (200,000+ iterations, 128-bit random salt, 96-bit random IV).</div>
+                  <span class="arch-badge">WebCrypto Subsystem</span>
+                </div>
+              </div>
+
+              <div class="arch-step-arrow">&darr;</div>
+
+              <div class="arch-step">
+                <div class="arch-step-num">04</div>
+                <div class="arch-step-body">
+                  <div class="arch-step-title">LUBY TRANSFORM (LT) FOUNTAIN ENCODER</div>
+                  <div class="arch-step-desc">Payload sliced into K equal source blocks (128B&ndash;768B). Robust Soliton degree distribution XORs blocks into endless rateless droplets.</div>
+                  <span class="arch-badge">Soliton Distribution</span>
+                </div>
+              </div>
+
+              <div class="arch-step-arrow">&darr;</div>
+
+              <div class="arch-step">
+                <div class="arch-step-num">05</div>
+                <div class="arch-step-body">
+                  <div class="arch-step-title">OPTICAL QR MATRIX EMITTER</div>
+                  <div class="arch-step-desc">High-speed QR rendering in 1x1, 2x2, or 3x3 grids at 8&ndash;24 FPS. Offscreen canvas ring buffer ensures zero frame drops.</div>
+                  <span class="arch-badge">Offscreen Canvas Buffer</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Central Optical Diode Bridge -->
+          <div class="arch-diode-bridge">
+            <div class="arch-diode-line"></div>
+            <div class="arch-diode-core">
+              <div class="arch-diode-icon"><span class="yd">P</span></div>
+              <div class="arch-diode-title">PHYSICAL OPTICAL DIODE</div>
+              <div class="arch-diode-desc">SCREEN EMISSION &rarr; SENSOR RECEPTION</div>
+              <div class="arch-diode-tag">STRICT UNIDIRECTIONAL &bull; ZERO PACKETS &bull; ZERO RF &bull; PHYSICALLY IMPOSSIBLE BACKCHANNEL</div>
+            </div>
+            <div class="arch-diode-line"></div>
+          </div>
+
+          <!-- Column 2: Receiver Pipeline -->
+          <div class="arch-pipeline">
+            <div class="arch-pipeline-header">
+              <span class="yd" style="font-size: 22px;">R</span>
+              <div>
+                <div class="arch-pipeline-title">RECEIVER PIPELINE (RECEIVER)</div>
+                <div class="arch-pipeline-sub">CAMERA SENSOR &bull; WEB WORKER SOLVER</div>
+              </div>
+            </div>
+
+            <div class="arch-steps">
+              <div class="arch-step">
+                <div class="arch-step-num">01</div>
+                <div class="arch-step-body">
+                  <div class="arch-step-title">OPTICAL SENSOR ACQUISITION</div>
+                  <div class="arch-step-desc">getUserMedia high-resolution camera stream. Hardware BarcodeDetector API reads QR matrices with tiled jsQR optical fallback.</div>
+                  <span class="arch-badge">Hardware Barcode API</span>
+                </div>
+              </div>
+
+              <div class="arch-step-arrow">&darr;</div>
+
+              <div class="arch-step">
+                <div class="arch-step-num">02</div>
+                <div class="arch-step-body">
+                  <div class="arch-step-title">INTEGRITY &amp; SESSION FILTER</div>
+                  <div class="arch-step-desc">CRC32 verification drops glares and blurred frames immediately. Validates session ID to prevent cross-stream pollution.</div>
+                  <span class="arch-badge">CRC32 Checksum</span>
+                </div>
+              </div>
+
+              <div class="arch-step-arrow">&darr;</div>
+
+              <div class="arch-step">
+                <div class="arch-step-num">03</div>
+                <div class="arch-step-body">
+                  <div class="arch-step-title">WEB WORKER RIPPLE PEELING SOLVER</div>
+                  <div class="arch-step-desc">Degree-1 packets enter ripple queue, iteratively XOR-peeling higher-degree packets via fast Uint32Array bitwise operations.</div>
+                  <span class="arch-badge">Worker Peeling Engine</span>
+                </div>
+              </div>
+
+              <div class="arch-step-arrow">&darr;</div>
+
+              <div class="arch-step">
+                <div class="arch-step-num">04</div>
+                <div class="arch-step-body">
+                  <div class="arch-step-title">DECRYPTION &amp; INFLATE RESTORATION</div>
+                  <div class="arch-step-desc">Reassembled blocks are decrypted with user passphrase (if protected) and decompressed via fflate inflate back to exact binary truth.</div>
+                  <span class="arch-badge">fflate &amp; WebCrypto</span>
+                </div>
+              </div>
+
+              <div class="arch-step-arrow">&darr;</div>
+
+              <div class="arch-step">
+                <div class="arch-step-num">05</div>
+                <div class="arch-step-body">
+                  <div class="arch-step-title">SHA-256 VERIFICATION &amp; AUTO-STOP</div>
+                  <div class="arch-step-desc">Plaintext SHA-256 hash verified against sender metadata. Camera stream instantly terminates; download is presented and memory zeroed.</div>
+                  <span class="arch-badge">Auto-Termination Trigger</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
