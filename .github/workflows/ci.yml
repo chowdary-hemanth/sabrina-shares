@@ -1,0 +1,106 @@
+name: CI & Integrity Validation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 1. Verify SHA-256 File Hashes
+        run: |
+          echo "Verifying file integrity against HASHES.txt..."
+          node scripts/hash.mjs --check
+
+      - name: 2. Validate Web Manifest
+        run: |
+          node -e '
+            const fs = require("fs");
+            const manifest = JSON.parse(fs.readFileSync("manifest.webmanifest", "utf8"));
+            const required = ["name", "short_name", "icons", "start_url", "display", "theme_color", "background_color"];
+            for (const key of required) {
+              if (!manifest[key]) throw new Error("Manifest missing key: " + key);
+            }
+            if (!Array.isArray(manifest.icons) || manifest.icons.length < 3) {
+              throw new Error("Manifest must provide at least 3 icons (192, 512, maskable)");
+            }
+            console.log("Web Manifest is valid and conforms to PWA spec.");
+          '
+
+      - name: 3. Validate HTML and Inlined Scripts
+        run: |
+          node -e '
+            const fs = require("fs");
+            const html = fs.readFileSync("index.html", "utf8");
+            
+            // Check essential elements
+            if (!html.includes("<!DOCTYPE html>")) throw new Error("Missing DOCTYPE");
+            if (!html.includes("manifest.webmanifest")) throw new Error("Missing manifest link");
+            if (!html.includes("Content-Security-Policy")) throw new Error("Missing CSP meta tag");
+            if (!html.includes("connect-src '\''none'\''")) throw new Error("CSP missing connect-src none");
+
+            // Validate all inlined script tags syntax
+            const scriptRegex = /<script(?:\s+[^>]*)?>([\s\S]*?)<\/script>/gi;
+            let match, count = 0;
+            while ((match = scriptRegex.exec(html)) !== null) {
+              count++;
+              new Function(match[1]);
+            }
+            console.log("HTML structure and " + count + " inlined scripts syntax verified successfully.");
+          '
+
+      - name: 4. Assert Cloudflare Pages _headers Configuration
+        run: |
+          node -e '
+            const fs = require("fs");
+            const headers = fs.readFileSync("_headers", "utf8");
+            
+            const checks = [
+              "Content-Security-Policy",
+              "default-src '\''none'\''",
+              "connect-src '\''none'\''",
+              "manifest-src '\''self'\''",
+              "worker-src '\''self'\'' blob:",
+              "frame-ancestors '\''none'\''",
+              "Strict-Transport-Security",
+              "X-Content-Type-Options: nosniff",
+              "Referrer-Policy: no-referrer",
+              "Cross-Origin-Opener-Policy: same-origin",
+              "Cross-Origin-Resource-Policy: same-origin",
+              "Permissions-Policy",
+              "camera=(self)"
+            ];
+            
+            for (const chk of checks) {
+              if (!headers.includes(chk)) {
+                throw new Error("_headers file is missing mandatory directive: " + chk);
+              }
+            }
+            console.log("Cloudflare Pages _headers file verified with all mandatory security directives.");
+          '
+
+      - name: 5. Live Preview Headers Test (Optional URL)
+        if: env.DEPLOY_PREVIEW_URL != ''
+        env:
+          DEPLOY_PREVIEW_URL: ${{ secrets.DEPLOY_PREVIEW_URL }}
+        run: |
+          echo "Testing live deployed headers against $DEPLOY_PREVIEW_URL..."
+          curl -sI "$DEPLOY_PREVIEW_URL" | tee headers.txt
+          grep -i "content-security-policy" headers.txt
+          grep -i "strict-transport-security" headers.txt
+          grep -i "x-content-type-options: nosniff" headers.txt

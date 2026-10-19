@@ -1,0 +1,29 @@
+# Cloudflare Pages Security & Cache Headers for Sabrina Shares
+
+/*
+  Content-Security-Policy: default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; manifest-src 'self'; worker-src 'self' blob:; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: no-referrer
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+  Permissions-Policy: camera=(self), screen-wake-lock=(self), microphone=(), geolocation=(), payment=(), usb=(), accelerometer=(), gyroscope=(), magnetometer=(), display-capture=(), browsing-topics=()
+
+# Disable caching for index.html so code updates and integrity changes propagate immediately
+/index.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# Disable caching for service worker so the browser checks for updates on navigation
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
+  Content-Type: application/javascript; charset=utf-8
+
+# Short revalidation for manifest
+/manifest.webmanifest
+  Cache-Control: no-cache, must-revalidate
+  Content-Type: application/manifest+json; charset=utf-8
+
+# Immutable long-lived cache for static icons
+/icons/*
+  Cache-Control: public, max-age=31536000, immutable

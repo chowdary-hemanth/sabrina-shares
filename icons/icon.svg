@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient -->
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#181c2e" />
+      <stop offset="60%" stop-color="#0e111c" />
+      <stop offset="100%" stop-color="#07080d" />
+    </radialGradient>
+    
+    <!-- Primary Neon Gradient -->
+    <linearGradient id="neonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="50%" stop-color="#a855f7" />
+      <stop offset="100%" stop-color="#06b6d4" />
+    </linearGradient>
+
+    <!-- Emerald Glow -->
+    <linearGradient id="emeraldGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+    
+    <!-- Outer Shield Glow -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Solid Background -->
+  <rect width="512" height="512" rx="108" fill="url(#bgGrad)" />
+
+  <!-- Outer Cyber Target Rings (Optical Diode theme) -->
+  <circle cx="256" cy="256" r="200" fill="none" stroke="#23283e" stroke-width="3" stroke-dasharray="16 12" />
+  <circle cx="256" cy="256" r="160" fill="none" stroke="url(#neonGrad)" stroke-width="2" opacity="0.4" />
+
+  <!-- Corner Alignment Targets (QR Finder motif) -->
+  <!-- Top Left Finder -->
+  <rect x="96" y="96" width="64" height="64" rx="12" fill="none" stroke="#6366f1" stroke-width="6" />
+  <rect x="112" y="112" width="32" height="32" rx="6" fill="#6366f1" />
+
+  <!-- Top Right Finder -->
+  <rect x="352" y="96" width="64" height="64" rx="12" fill="none" stroke="#a855f7" stroke-width="6" />
+  <rect x="368" y="112" width="32" height="32" rx="6" fill="#a855f7" />
+
+  <!-- Bottom Left Finder -->
+  <rect x="96" y="352" width="64" height="64" rx="12" fill="none" stroke="#10b981" stroke-width="6" />
+  <rect x="112" y="368" width="32" height="32" rx="6" fill="#10b981" />
+
+  <!-- Optical Diode Center Aperture -->
+  <circle cx="256" cy="256" r="92" fill="#121522" stroke="url(#neonGrad)" stroke-width="4" filter="url(#glow)" />
+
+  <!-- Stylized "S" Optical Diode Wave -->
+  <path d="M 296 196
+           C 296 180, 276 168, 256 168
+           C 226 168, 206 184, 206 210
+           C 206 242, 240 250, 268 258
+           C 296 266, 312 280, 312 306
+           C 312 336, 286 352, 256 352
+           C 224 352, 204 336, 202 316"
+        fill="none"
+        stroke="url(#neonGrad)"
+        stroke-width="22"
+        stroke-linecap="round"
+        stroke-linejoin="round" />
+
+  <!-- Photon Ray Beam Diode Arrow -->
+  <polygon points="314,196 290,180 290,212" fill="#06b6d4" />
+
+  <!-- Air-Gap Broken Wave Emblems -->
+  <line x1="256" y1="56" x2="256" y2="76" stroke="#6366f1" stroke-width="4" stroke-linecap="round" />
+  <line x1="256" y1="436" x2="256" y2="456" stroke="#10b981" stroke-width="4" stroke-linecap="round" />
+  <line x1="56" y1="256" x2="76" y2="256" stroke="#6366f1" stroke-width="4" stroke-linecap="round" />
+  <line x1="436" y1="256" x2="456" y2="256" stroke="#a855f7" stroke-width="4" stroke-linecap="round" />
+
+  <!-- Subtle Center Core Light -->
+  <circle cx="256" cy="256" r="8" fill="#ffffff" opacity="0.9" filter="url(#glow)" />
+</svg>

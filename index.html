@@ -3,8 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <!-- Hard constraint: Strict CSP with zero network requests -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; worker-src blob:; connect-src 'none';">
+  <!-- Hard constraint: Strict CSP with zero external network requests -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; manifest-src 'self'; worker-src 'self' blob:; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="theme-color" content="#0b0d14">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Sabrina">
   <title>Sabrina Shares // Offline Air-Gapped File Diode</title>
   <style>
     :root {
@@ -707,6 +714,12 @@
 </head>
 <body>
 
+  <!-- PWA Update Notification Banner -->
+  <div id="pwa-update-banner" style="display: none; background: #4f46e5; color: #fff; padding: 10px 16px; font-size: 13px; font-weight: 600; text-align: center; position: sticky; top: 0; z-index: 200; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+    <span>🔄 An update to Sabrina Shares is ready.</span>
+    <button id="btn-reload-pwa" class="btn" style="margin-left: 12px; background: #fff; color: #4f46e5; padding: 4px 12px; font-size: 12px; border-radius: 6px;">Reload to Update</button>
+  </div>
+
   <!-- Top Status Bar -->
   <header>
     <div class="brand">
@@ -717,6 +730,9 @@
       </div>
     </div>
     <div class="header-actions">
+      <button class="btn btn-secondary" id="btn-install-pwa" style="display: none; padding: 6px 12px; font-size: 12px;" title="Install as Offline PWA">
+        <span>📲</span> Install
+      </button>
       <div class="badge badge-secure" title="Strict CSP, Zero Network, In-Memory Only">
         <span class="badge-dot"></span>
         AIR-GAPPED
@@ -2697,6 +2713,79 @@ Minimum version required to store current data is: `+o+`.
 
     document.getElementById('btn-run-tests').addEventListener('click', () => {
       window.SabrinaTests.runAll();
+    });
+
+    // --- PWA SERVICE WORKER REGISTRATION & UPDATE FLOW ---
+    let pendingWorker = null;
+    function showUpdateBanner(worker) {
+      pendingWorker = worker;
+      const banner = document.getElementById('pwa-update-banner');
+      if (banner) banner.style.display = 'block';
+    }
+
+    document.getElementById('btn-reload-pwa')?.addEventListener('click', () => {
+      if (pendingWorker) {
+        pendingWorker.postMessage({ type: 'SKIP_WAITING' });
+      } else {
+        window.location.reload();
+      }
+    });
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then((reg) => {
+          if (reg.waiting) {
+            showUpdateBanner(reg.waiting);
+          }
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            if (newWorker) {
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  showUpdateBanner(newWorker);
+                }
+              });
+            }
+          });
+        }).catch((err) => {
+          console.warn('Service worker registration failed:', err);
+        });
+
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+          }
+        });
+      });
+    }
+
+    // --- PWA INSTALL PROMPT HANDLING ---
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const installBtn = document.getElementById('btn-install-pwa');
+      if (installBtn) installBtn.style.display = 'inline-flex';
+    });
+
+    document.getElementById('btn-install-pwa')?.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          const installBtn = document.getElementById('btn-install-pwa');
+          if (installBtn) installBtn.style.display = 'none';
+        }
+        deferredPrompt = null;
+      }
+    });
+
+    window.addEventListener('appinstalled', () => {
+      const installBtn = document.getElementById('btn-install-pwa');
+      if (installBtn) installBtn.style.display = 'none';
+      deferredPrompt = null;
     });
 
   </script>

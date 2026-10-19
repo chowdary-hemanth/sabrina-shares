@@ -1,114 +1,209 @@
 # Sabrina Shares 🕊️📱
 
-**Sabrina Shares** is an offline, air-gapped, zero-persistence file transfer tool designed to transmit files of up to 10 MB between two devices across an optical visual data channel using a cycling stream of QR codes.
+**Sabrina Shares** is an offline, air-gapped, zero-persistence file transfer tool designed to transmit files of up to 10 MB between two devices across an optical visual data channel using a rapidly cycling stream of QR codes.
 
-The sender screen rapidly flashes QR frames; the receiver's camera scans them and reconstructs the original file byte-for-byte.
+The sender screen flashes high-contrast QR frames; the receiver's camera scans them and reconstructs the original file byte-for-byte.
 
----
-
-## 🔒 Security & Privacy Guarantees
-
-- **Zero Network Activity**: Protected by strict Content Security Policy (CSP):
-  `default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; worker-src blob:; connect-src 'none'`
-  No analytics, no telemetry, no CDNs, no external fonts, no fetches, no WebSockets.
-- **Zero Persistence**: 100% volatile memory only. No `localStorage`, no `sessionStorage`, no `IndexedDB`, no cookies, no Cache API, and no service workers.
-- **Wipe Session**: One-click "Wipe Session" button immediately zeroes all TypedArray buffers in RAM (`.fill(0)`), terminates Web Workers, terminates camera media streams, releases wake locks, and resets state. An automatic wipe option is also provided after downloading the received file.
-- **One-Way Channel (Diode)**: Strictly screen-to-camera. Reliability comes purely from forward error correction and rateless fountain coding, not acknowledgment packets or backchannels.
+- **Zero Network Activity**: Hard platform-level isolation via strict Content Security Policy (`connect-src 'none'`).
+- **Zero Persistent Storage**: Pure volatile memory only (no `localStorage`, cookies, or `IndexedDB`).
+- **One-Way Channel (Optical Diode)**: Screen to camera. No reverse radio, Wi-Fi, or Bluetooth channel.
+- **Rateless Fountain Codes**: Luby Transform (LT) codes with Robust Soliton distribution. Start at any frame, miss any packets, and finish automatically.
+- **Progressive Web App (PWA)**: Installable to home screens; runs 100% offline in airplane mode.
+- **Verifiable Cryptographic Integrity**: Every shipped release file is tracked in `HASHES.txt` and verified in CI.
 
 ---
 
-## ⚙️ Architecture & Pipeline
+## 🔒 Security & Privacy Architecture
 
 ```
 [ Sender Device ]
-  1. File Input (max 10 MB)
-  2. Optional Deflate Compression (via fflate)
-  3. Optional AES-256-GCM Encryption (PBKDF2-SHA256, 200,000+ iterations)
-  4. Block Partitioning (Fixed block size B)
-  5. Luby Transform (LT) Fountain Encoding (Robust Soliton distribution)
-  6. Fixed-Timestep Ring Buffer Renderer (requestAnimationFrame)
+  1. File Selection (max 10 MB limit enforced)
+  2. Optional Deflate Compression (via fflate; skipped if output is not smaller)
+  3. Optional AES-256-GCM Encryption (PBKDF2-SHA256, 200,000+ iterations, salt + 96-bit IV)
+  4. Block Partitioning (Fixed block size B, zero-padded end block)
+  5. Luby Transform (LT) Fountain Encoding (Robust Soliton distribution, Mulberry32 PRNG)
+  6. Fixed-Timestep Ring Buffer Renderer (requestAnimationFrame accumulator)
   7. High-Contrast QR Code Flash Stream (1x1, 2x2, or 3x3 grid)
          │
-         │  Optical Screen-to-Camera One-Way Channel
+         │  Optical Screen-to-Camera One-Way Channel (Zero Backchannel)
          ▼
 [ Receiver Device ]
-  1. Camera Stream (1080p+, continuous autofocus)
-  2. Hardware BarcodeDetector (with Web Worker jsQR tile fallback)
-  3. CRC32 Integrity & Session Filtering
+  1. Camera Stream (1080p+, continuous autofocus, rear sensor)
+  2. QR Detection Engine (Native BarcodeDetector / Web Worker jsQR tile fallback)
+  3. Packet Integrity & Session Filter (CRC32 checksum, Session ID match, Dedup)
   4. Web Worker Peeling Decoder (Indexed Ripple Queue + Uint32Array XOR)
-  5. Concatenation & AES-256-GCM Decryption (Prompt for passphrase)
+  5. Concatenation & AES-256-GCM Decryption (Prompt for passphrase if encrypted)
   6. Deflate Inflation
   7. Plaintext SHA-256 Verification vs Sender Signature
-  8. Blob Download & Instant Memory Wipe
+  8. Download Blob & Instant Memory Wipe
+```
+
+### Content Security Policy (CSP)
+```http
+Content-Security-Policy: default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; manifest-src 'self'; worker-src 'self' blob:; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';
+```
+- `connect-src 'none'`: Browser refuses any `fetch()`, `XMLHttpRequest`, `WebSocket`, `EventSource`, or Beacon.
+- `manifest-src 'self'` & `worker-src 'self' blob:`: Permits the offline service worker and local blob Web Workers while forbidding any external code execution.
+- `frame-ancestors 'none'`: Prevents clickjacking by forbidding embedding inside `<iframe>`.
+- `base-uri 'none'` & `form-action 'none'`: Blocks `<base>` tag injection and form submissions.
+
+---
+
+## 🔍 Verify Your Copy (Integrity & Trust)
+
+You can verify that the code executing on your device matches the published repository before transferring sensitive data.
+
+### 1. Verification via macOS / Linux Terminal
+Clone the repository and compare file hashes against `HASHES.txt`:
+```bash
+# Verify all assets against the manifest
+node scripts/hash.mjs --check
+
+# Or verify index.html directly using sha256sum
+sha256sum index.html
+cat HASHES.txt | grep index.html
+```
+
+### 2. Verification via Windows PowerShell
+```powershell
+# Verify index.html hash
+Get-FileHash -Algorithm SHA256 index.html
+Get-Content HASHES.txt | Select-String "index.html"
+```
+
+### 3. Verification in Browser DevTools Console
+Press `F12` (or `Cmd+Option+I` on macOS) -> **Console** on any loaded instance of Sabrina Shares:
+```javascript
+fetch('index.html')
+  .then(res => res.arrayBuffer())
+  .then(buf => crypto.subtle.digest('SHA-256', buf))
+  .then(hash => {
+    const hex = Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+    console.log("Current running index.html SHA-256:\n" + hex);
+  });
+```
+Compare the resulting hash against the entry in `HASHES.txt`.
+
+### 4. Verifying Signed Release Tags
+Official releases are tagged in git and signed with a cryptographic key:
+```bash
+git tag -v v1.0.0
 ```
 
 ---
 
-## 📦 Packet Binary Layout (Byte Mode)
+## 💻 Local Offline Execution (Maximum Trust)
 
-Every QR code carries a packed binary packet with 32-bit CRC protection:
+For classified or air-gapped environments, you do not need to rely on any remote host. Run Sabrina Shares on an air-gapped computer:
 
-### Data Packet
-| Offset (Bytes) | Field | Type | Description |
-|---|---|---|---|
-| 0 | Magic | uint8 | `0x53` ('S') |
-| 1 | Version | uint8 | `0x01` |
-| 2 | Packet Type | uint8 | `0x01` (Data) |
-| 3 | Flags | uint8 | Reserved |
-| 4 – 7 | Session ID | uint32 (BE) | Random 32-bit transfer session |
-| 8 – 11 | Total Blocks ($K$) | uint32 (BE) | Number of source blocks |
-| 12 – 13 | Block Size ($B$) | uint16 (BE) | Size of each block in bytes |
-| 14 – 15 | Reserved | uint16 (BE) | Alignment padding |
-| 16 – 19 | Packet Seed | uint32 (BE) | Deterministic PRNG seed for degree & neighbors |
-| 20 – (20+$B$-1) | Encoded Payload | bytes | XOR sum of neighbor source blocks |
-| (20+$B$) – (23+$B$) | CRC32 | uint32 (BE) | IEEE 802.3 CRC over bytes [0 .. 20+$B$-1] |
+```bash
+# Clone or copy the folder
+cd sabrina-shares
 
-### Metadata Packet (Emitted ~1x per second)
-| Offset (Bytes) | Field | Type | Description |
-|---|---|---|---|
-| 0 – 15 | Header | 16 bytes | Same header as Data Packet (Type = `0x00`) |
-| 16 – 19 | Original Size | uint32 (BE) | Original uncompressed/unencrypted size |
-| 20 – 23 | Processed Size | uint32 (BE) | Post-compression/encryption size |
-| 24 | Is Compressed | uint8 | 1 if deflated, 0 if raw |
-| 25 | Is Encrypted | uint8 | 1 if AES-256-GCM, 0 if raw |
-| 26 – 41 | Salt | 16 bytes | PBKDF2 salt |
-| 42 – 53 | IV | 12 bytes | AES-GCM 96-bit initialization vector |
-| 54 – 85 | SHA-256 | 32 bytes | Cryptographic digest of final plaintext |
-| 86 | MIME Length ($M$) | uint8 | Byte length of MIME string |
-| 87 – (86+$M$) | MIME Type | ASCII string | MIME type (e.g. `application/pdf`) |
-| Next byte | Filename Length ($F$) | uint8 | Byte length of filename |
-| Next $F$ bytes | Filename | UTF-8 string | File name |
-| Last 4 bytes | CRC32 | uint32 (BE) | IEEE 802.3 CRC over all preceding bytes |
+# Start a local offline HTTP server (Python 3)
+python -m http.server 8080 --bind 127.0.0.1
+```
+Open `http://localhost:8080` in Chrome, Safari, Edge, or Firefox. Because camera access requires a secure origin, modern browsers treat `localhost` / `127.0.0.1` as a secure context, enabling camera input and service workers offline.
 
 ---
 
-## 🚀 Throughput Presets
+## 📱 Progressive Web App (PWA) Offline Installation
 
-| Preset | Grid Layout | FPS | Block Size ($B$) | QR Version / ECC | Best Used For |
-|---|---|---|---|---|---|
-| **🛡️ Reliable** | 1x1 (Single) | 8 FPS | 512 Bytes | v22 / ECC M | Dim light, older cameras, long distance (1–2m) |
-| **⚖️ Balanced** | 2x2 (4 QRs) | 10 FPS | 280 Bytes | v12 / ECC L | High-resolution phone cameras at arm's length |
-| **⚡ Fast** | 3x3 (9 QRs) | 12 FPS | 160 Bytes | v8 / ECC L | High-speed desktop monitors to 1080p/4K sensors |
+1. **Android (Chrome)**:
+   - Visit the deployment URL over HTTPS.
+   - Tap the **📲 Install** button in the top navigation bar, or select **Add to Home screen** from the Chrome menu.
+   - Once installed, enable **Airplane Mode** (disable Wi-Fi and Cellular).
+   - Launch Sabrina Shares from your app drawer. It will launch as a standalone app and function 100% offline.
+2. **iOS (Safari)**:
+   - Visit the deployment URL over HTTPS in Safari.
+   - Tap the **Share** button (box with upward arrow) -> **Add to Home Screen**.
+   - Launch Sabrina Shares from the Home Screen.
+3. **Desktop (Chrome / Edge)**:
+   - Click the install icon in the address bar.
 
 ---
 
-## 🧪 Self-Tests & Loopback Simulation
+## 🚀 Cloudflare Pages Production Deployment Runbook
 
-- **Loopback Mode**: In the "Loopback & Tests" tab, simulate transmitting 100 KB, 1 MB, 5 MB, or 10 MB files with configurable random packet loss (0% to 40%). Zero camera required.
-- **Automated Self-Tests**: Run the built-in test suite to verify:
-  1. 10 MB buffer peeling decode under 30% drop rate.
-  2. CRC32 corruption rejection.
-  3. Wrong session ID rejection.
-  4. Duplicate seed deduplication.
-  5. WebCrypto AES-256-GCM + PBKDF2 (200k iter) round trip.
-  6. Fountain stream late-join recovery.
+Cloudflare Pages provides global Edge hosting with HTTP/3, free automatic SSL certificates, and zero cold starts.
 
-To run via DevTools console:
-```js
+### Route 1: Git-Connected (Automatic CI/CD)
+1. Fork or push this repository to your GitHub account (`https://github.com/<your-username>/sabrina-shares`).
+2. Log in to the [Cloudflare Dashboard](https://dash.cloudflare.com/) and navigate to **Workers & Pages** -> **Create application** -> **Pages** -> **Connect to Git**.
+3. Select the `sabrina-shares` repository.
+4. Set up the build configuration:
+   - **Project Name**: `sabrina-shares`
+   - **Production Branch**: `main`
+   - **Framework Preset**: `None`
+   - **Build Command**: *(leave completely blank)*
+   - **Build Output Directory**: `/`
+5. Click **Save and Deploy**. Your site will deploy in seconds at `https://sabrina-shares.pages.dev`.
+
+### Route 2: Direct Upload via Wrangler CLI
+Deploy directly from your local terminal without connecting GitHub:
+```bash
+# 1. Install Wrangler
+npm install -g wrangler
+
+# 2. Login to Cloudflare
+npx wrangler login
+
+# 3. Deploy directory to Cloudflare Pages
+npx wrangler pages deploy . --project-name=sabrina-shares --branch=main
+```
+
+### ⚠️ Critical Cloudflare Settings: Disabling Auto-Injected Scripts
+Because Sabrina Shares uses a strict zero-network CSP (`connect-src 'none'`), third-party scripts injected by Cloudflare will be blocked and log CSP violations.
+
+1. **Disable Cloudflare Web Analytics**:
+   - In Cloudflare Dashboard -> **Analytics & Logs** -> **Web Analytics**.
+   - Ensure Web Analytics is **disabled** for your Pages domain.
+2. **Disable Rocket Loader & Auto Minify** (if using custom domain):
+   - Under **Speed** -> **Optimization**, turn **Rocket Loader** OFF.
+   - Under **Scrape Shield**, turn **Email Address Obfuscation** OFF.
+3. **Verify Zero Injection**:
+   - Run `curl -s https://sabrina-shares.pages.dev | grep -i "cloudflare"` to confirm no scripts are injected.
+
+### Custom Domain & HSTS Preload
+1. Under **Custom domains** in your Pages project, click **Set up a domain** (e.g. `shares.yourdomain.com`).
+2. Cloudflare automatically configures DNS CNAME records and issues a managed TLS certificate.
+3. In **SSL/TLS** -> **Edge Certificates**, enable **Always Use HTTPS** and **HTTP Strict Transport Security (HSTS)** with:
+   - Max-Age: `63072000` (2 years)
+   - Include subdomains: `true`
+   - Preload: `true`
+
+---
+
+## ⚡ Fallback Hosts
+
+### 1. Netlify
+A [`netlify.toml`](netlify.toml) file is included in the repository. Run:
+```bash
+npx netlify deploy --prod --dir=.
+```
+
+### 2. GitHub Pages
+GitHub Pages serves static sites from the `main` branch.
+- *Limitation*: GitHub Pages does not support custom response headers (`_headers`), so security policies fall back to the inlined `<meta http-equiv="Content-Security-Policy">` tag in `index.html`.
+
+---
+
+## 🧪 Automated Self-Tests Suite
+
+Sabrina Shares includes a built-in cryptographic test suite:
+- **Test 1**: 10 MB buffer peeling decode under 30% random packet drop.
+- **Test 2**: CRC32 bit corruption rejection.
+- **Test 3**: Wrong session ID packet rejection.
+- **Test 4**: Duplicate seed deduplication.
+- **Test 5**: WebCrypto AES-256-GCM + PBKDF2 (200k iter) roundtrip.
+- **Test 6**: Fountain stream late-join recovery.
+
+To run tests in browser console:
+```javascript
 window.SabrinaTests.runAll();
 ```
 
 ---
 
 ## 📄 License
-MIT License. Self-contained, zero dependencies, inlined MIT libraries (`qrcode`, `jsqr`, `fflate`).
+MIT License. Copyright (c) 2026 Hemanth Chowdary.
