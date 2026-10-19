@@ -17,6 +17,7 @@ const TARGET_FILES = [
   'icons/icon-512.png',
   'icons/icon-maskable-512.png',
   'icons/logo.jpg',
+  'fonts/bitcount-single-ink.ttf',
   'fonts/bitcount-ink.ttf',
   'fonts/yarndings-12.ttf'
 ];

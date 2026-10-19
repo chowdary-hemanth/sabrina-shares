@@ -9,22 +9,22 @@
   <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <meta name="theme-color" content="#0c0d10">
+  <meta name="theme-color" content="#f6f1e5">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Sabrina">
   <title>Sabrina Shares // Optical Stream Diode</title>
 
-  <!-- Google Fonts: Bitcount Ink and Yarndings 12 -->
+  <!-- Google Fonts: Bitcount Single Ink and Yarndings 12 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitcount+Ink:wght@400;700&family=Yarndings+12&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitcount+Single+Ink&family=Yarndings+12&display=swap">
 
   <style>
-    /* Local offline font fallbacks for air-gapped / offline operation */
+    /* Local offline font fallbacks for offline PWA operation */
     @font-face {
-      font-family: 'Bitcount Ink';
-      src: url('fonts/bitcount-ink.ttf') format('truetype');
+      font-family: 'Bitcount Single Ink';
+      src: url('fonts/bitcount-single-ink.ttf') format('truetype');
       font-weight: normal;
       font-style: normal;
       font-display: swap;
@@ -38,24 +38,24 @@
     }
 
     :root {
-      /* Black, Grey, and Creme Theme */
-      --bg: #0c0d10;
-      --card-bg: #14171d;
-      --card-bg-elevated: #1a1e26;
-      --card-border: #282d39;
-      --card-border-light: #3d4556;
-      --accent: #ebd8aa;
-      --accent-hover: #f5eedc;
-      --accent-glow: rgba(235, 216, 170, 0.16);
-      --text: #f5eedc;
-      --text-muted: #b5ac98;
-      --text-dim: #7d7768;
-      --success: #a3be8c;
-      --warning: #ebcb8b;
-      --danger: #bf616a;
+      /* Creme Background & Soft Black Text Theme */
+      --bg: #f6f1e5;
+      --card-bg: #fffdf9;
+      --card-bg-elevated: #ffffff;
+      --card-border: #ded5c2;
+      --card-border-strong: #1c1f26;
+      --accent: #1c1f26;
+      --accent-hover: #313744;
+      --accent-glow: rgba(28, 31, 38, 0.12);
+      --text: #1a1c22;
+      --text-muted: #525866;
+      --text-dim: #767d8e;
+      --success: #226b38;
+      --warning: #b45309;
+      --danger: #b91c1c;
       --radius: 6px;
-      --font-family: 'Bitcount Ink', monospace, 'Courier New', monospace;
-      --font-mono: 'Bitcount Ink', monospace, ui-monospace, monospace;
+      --font-family: 'Bitcount Single Ink', monospace, 'Courier New', monospace;
+      --font-mono: ui-monospace, 'Courier New', Menlo, Monaco, Consolas, monospace;
     }
 
     * {
@@ -73,7 +73,9 @@
       display: flex;
       flex-direction: column;
       overflow-x: hidden;
-      letter-spacing: 0.2px;
+      letter-spacing: 0.25px;
+      font-size: 14px;
+      line-height: 1.5;
     }
 
     button, input, select, textarea {
@@ -90,18 +92,18 @@
       user-select: none;
     }
 
-    /* Top Navigation & Status Bar */
+    /* Top Status Bar */
     header {
-      background: rgba(20, 23, 29, 0.94);
-      backdrop-filter: blur(12px);
+      background: #fffdf9;
       border-bottom: 1px solid var(--card-border);
-      padding: 12px 20px;
+      padding: 10px 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       position: sticky;
       top: 0;
       z-index: 100;
+      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.03);
     }
 
     .brand {
@@ -109,15 +111,16 @@
       align-items: center;
       gap: 12px;
       cursor: pointer;
+      user-select: none;
     }
 
     .brand-logo-img {
       width: 40px;
       height: 40px;
-      border-radius: 8px;
+      border-radius: 50%;
       object-fit: cover;
       border: 1.5px solid var(--accent);
-      box-shadow: 0 0 12px rgba(235, 216, 170, 0.22);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
       transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
       display: block;
     }
@@ -127,14 +130,15 @@
     }
 
     .brand-title {
-      font-size: 17px;
+      font-size: 18px;
       font-weight: 700;
-      letter-spacing: 1px;
+      letter-spacing: 0.8px;
       color: var(--text);
+      line-height: 1.2;
     }
 
     .brand-subtitle {
-      font-size: 10px;
+      font-size: 11px;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 1.2px;
@@ -164,7 +168,7 @@
 
     .btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 12px rgba(28, 31, 38, 0.15);
     }
 
     .btn:active {
@@ -173,34 +177,34 @@
 
     .btn-primary {
       background: var(--accent);
-      color: #0c0d10;
+      color: var(--bg);
       border-color: var(--accent);
-      box-shadow: 0 3px 12px var(--accent-glow);
+      box-shadow: 0 2px 8px var(--accent-glow);
     }
     .btn-primary:hover {
       background: var(--accent-hover);
       border-color: var(--accent-hover);
-      box-shadow: 0 5px 16px rgba(235, 216, 170, 0.3);
+      box-shadow: 0 4px 14px rgba(28, 31, 38, 0.25);
     }
 
     .btn-danger {
-      background: rgba(191, 97, 106, 0.12);
+      background: #fbeceb;
       color: var(--danger);
-      border-color: rgba(191, 97, 106, 0.35);
+      border-color: #f3c4c2;
     }
     .btn-danger:hover {
-      background: rgba(191, 97, 106, 0.22);
+      background: #f7dbd9;
       border-color: var(--danger);
     }
 
     .btn-secondary {
-      background: #191c24;
+      background: #ece3d2;
       color: var(--text);
-      border-color: var(--card-border);
+      border-color: #d4c7b2;
     }
     .btn-secondary:hover {
-      background: #232733;
-      border-color: var(--card-border-light);
+      background: #e2d6c1;
+      border-color: #bfae95;
     }
 
     .btn-large {
@@ -210,59 +214,34 @@
       width: 100%;
     }
 
-    /* Tabs Navigation */
-    .nav-tabs {
-      display: flex;
-      background: #111319;
-      border-bottom: 1px solid var(--card-border);
-      padding: 0 20px;
-      overflow-x: auto;
-    }
-
-    .tab-btn {
-      padding: 13px 18px;
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-      position: relative;
-      display: flex;
+    .btn-back-home {
+      display: inline-flex;
       align-items: center;
       gap: 8px;
-      white-space: nowrap;
-      transition: color 0.16s ease;
-    }
-
-    .tab-btn:hover {
+      margin-bottom: 16px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #ede3d1;
+      border: 1px solid #d8cbaf;
       color: var(--text);
+      border-radius: var(--radius);
+      cursor: pointer;
     }
-
-    .tab-btn.active {
-      color: var(--accent);
-    }
-
-    .tab-btn.active::after {
-      content: '';
-      position: absolute;
-      bottom: -1px;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: var(--accent);
-      border-radius: 3px 3px 0 0;
-      box-shadow: 0 -2px 8px var(--accent-glow);
+    .btn-back-home:hover {
+      background: #e4d7c0;
+      border-color: var(--accent);
     }
 
     /* Main Container */
     main {
       flex: 1;
-      padding: 20px;
-      max-width: 920px;
+      padding: 16px 20px;
+      max-width: 1140px;
       margin: 0 auto;
       width: 100%;
+      display: flex;
+      flex-direction: column;
     }
 
     .tab-pane {
@@ -284,15 +263,15 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: var(--radius);
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      padding: 18px 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
     }
 
     .card-title {
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 700;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -300,76 +279,143 @@
       color: var(--accent);
     }
 
-    /* Action Cards Grid on Landing Page */
+    /* Landing Single Viewport Layout */
+    #tab-landing.active {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex: 1;
+    }
+
+    .hero-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .hero-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--accent);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+      margin-bottom: 10px;
+      transition: transform 0.2s ease;
+    }
+    .hero-avatar:hover {
+      transform: scale(1.06);
+    }
+
+    .ascii-hero-wrap {
+      background: #fbf7ee;
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 8px 14px;
+      margin-bottom: 8px;
+      max-width: 100%;
+      overflow-x: auto;
+    }
+
+    .ascii-art {
+      font-family: var(--font-mono) !important;
+      font-size: 11px;
+      line-height: 1.16;
+      color: var(--text);
+      letter-spacing: 0px;
+      white-space: pre;
+      margin: 0 auto;
+      display: inline-block;
+      text-align: left;
+    }
+
+    .hero-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.45;
+      max-width: 740px;
+      margin: 0 auto;
+    }
+
+    /* 4 Primary Operations Action Cards */
     .action-cards-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 16px;
-      margin: 16px 0 24px 0;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: auto;
+      margin-bottom: 6px;
     }
 
     .action-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: var(--radius);
-      padding: 20px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
       cursor: pointer;
-      transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+      transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.18s ease, box-shadow 0.18s ease;
       position: relative;
     }
 
     .action-card:hover {
       transform: translateY(-3px);
-      border-color: var(--accent);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 16px var(--accent-glow);
+      border-color: var(--card-border-strong);
+      box-shadow: 0 6px 20px rgba(28, 31, 38, 0.09);
     }
 
     .action-card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .action-card-badge {
-      font-size: 10px;
-      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
       letter-spacing: 1px;
     }
 
     .action-card-icon {
-      font-size: 24px;
-      color: var(--accent);
+      font-size: 20px;
+      color: var(--text);
     }
 
     .action-card-title {
       font-size: 15px;
       font-weight: 700;
       color: var(--text);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       letter-spacing: 0.5px;
     }
 
     .action-card-desc {
       font-size: 12px;
       color: var(--text-muted);
-      line-height: 1.5;
-      margin-bottom: 18px;
+      line-height: 1.4;
+      margin-bottom: 14px;
       flex: 1;
     }
 
-    /* Uniqueness & Features Grid */
+    /* Uniqueness & Features Grid in Know More Tab */
     .features-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 14px;
       margin-top: 14px;
     }
 
     .feature-item {
-      background: #0f1218;
+      background: #fbf7ee;
       border: 1px solid var(--card-border);
       border-radius: var(--radius);
       padding: 16px;
@@ -377,11 +423,11 @@
     }
 
     .feature-item:hover {
-      border-color: var(--card-border-light);
+      border-color: var(--accent);
     }
 
     .feature-title {
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 700;
       color: var(--accent);
       margin-bottom: 6px;
@@ -389,36 +435,30 @@
     }
 
     .feature-desc {
-      font-size: 12px;
+      font-size: 13px;
       color: var(--text-muted);
       line-height: 1.5;
     }
 
-    .ascii-art {
-      font-family: var(--font-mono);
-      white-space: pre;
-      user-select: text;
-    }
-
     /* Drag and Drop Zone */
     .dropzone {
-      border: 2px dashed var(--card-border);
+      border: 2px dashed #d5c8b2;
       border-radius: var(--radius);
-      padding: 36px 20px;
+      padding: 34px 20px;
       text-align: center;
       cursor: pointer;
       transition: border-color 0.2s ease, background 0.2s ease;
-      background: rgba(255, 255, 255, 0.01);
+      background: #faf5eb;
     }
 
     .dropzone:hover, .dropzone.dragover {
       border-color: var(--accent);
-      background: rgba(235, 216, 170, 0.04);
+      background: #f3ecd9;
     }
 
     .dropzone-icon {
       font-size: 36px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       color: var(--accent);
     }
 
@@ -443,7 +483,7 @@
     }
 
     .info-item {
-      background: #0e1017;
+      background: #fbf7ee;
       border: 1px solid var(--card-border);
       padding: 10px 14px;
       border-radius: var(--radius);
@@ -480,7 +520,7 @@
 
     .form-control {
       width: 100%;
-      background: #0e1017;
+      background: #fffdfa;
       border: 1px solid var(--card-border);
       color: var(--text);
       padding: 10px 14px;
@@ -502,7 +542,7 @@
     }
 
     .preset-btn {
-      background: #0e1017;
+      background: #fffdfa;
       border: 1px solid var(--card-border);
       border-radius: var(--radius);
       padding: 12px;
@@ -513,19 +553,19 @@
     }
 
     .preset-btn:hover {
-      border-color: var(--card-border-light);
+      border-color: var(--card-border-strong);
     }
 
     .preset-btn.active {
-      border-color: var(--accent);
-      background: rgba(235, 216, 170, 0.08);
+      border-color: var(--card-border-strong);
+      background: #f4ecdc;
     }
 
     .preset-name {
       font-weight: 700;
       font-size: 13px;
       margin-bottom: 4px;
-      color: var(--accent);
+      color: var(--text);
       letter-spacing: 0.5px;
     }
 
@@ -562,8 +602,8 @@
 
     /* Estimate Banner */
     .estimate-banner {
-      background: rgba(235, 216, 170, 0.06);
-      border: 1px solid rgba(235, 216, 170, 0.22);
+      background: #fbf7ee;
+      border: 1px solid var(--card-border);
       border-radius: var(--radius);
       padding: 14px 16px;
       margin: 16px 0;
@@ -584,13 +624,13 @@
     .estimate-val {
       font-size: 16px;
       font-weight: 700;
-      color: var(--accent);
+      color: var(--text);
       font-family: var(--font-mono);
     }
 
     .estimate-warning {
-      background: rgba(235, 203, 139, 0.12);
-      border-color: rgba(235, 203, 139, 0.35);
+      background: #fef3c7;
+      border-color: #f59e0b;
       color: var(--warning);
     }
 
@@ -605,7 +645,7 @@
       background: #ffffff;
       padding: 24px;
       border-radius: var(--radius);
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 6px 30px rgba(0, 0, 0, 0.12);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -647,7 +687,7 @@
     .fullscreen-mode .stream-hud {
       position: absolute;
       bottom: 20px;
-      background: rgba(12, 13, 16, 0.92);
+      background: rgba(255, 253, 249, 0.95);
       border: 1px solid var(--card-border);
       border-radius: var(--radius);
       padding: 8px 18px;
@@ -657,7 +697,7 @@
       position: absolute;
       top: 20px;
       right: 20px;
-      background: rgba(12, 13, 16, 0.85);
+      background: rgba(255, 253, 249, 0.92);
       color: var(--text);
       border: 1px solid var(--card-border);
       padding: 8px 14px;
@@ -674,7 +714,7 @@
       justify-content: center;
       gap: 16px;
       margin: 16px 0;
-      background: #0e1017;
+      background: #fbf7ee;
       border: 1px solid var(--card-border);
       padding: 12px 20px;
       border-radius: var(--radius);
@@ -689,7 +729,7 @@
       font-size: 15px;
       font-weight: 700;
       font-family: var(--font-mono);
-      color: var(--accent);
+      color: var(--text);
     }
 
     .hud-stat-lbl {
@@ -734,7 +774,7 @@
       position: absolute;
       width: 70%;
       height: 70%;
-      border: 2px dashed rgba(235, 216, 170, 0.5);
+      border: 2px dashed rgba(255, 255, 255, 0.7);
       border-radius: var(--radius);
       pointer-events: none;
       box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.5);
@@ -746,8 +786,8 @@
     .reticle-laser {
       width: 100%;
       height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
-      box-shadow: 0 0 8px var(--accent);
+      background: linear-gradient(90deg, transparent, #fff, transparent);
+      box-shadow: 0 0 8px #fff;
       animation: laserSweep 2s ease-in-out infinite alternate;
     }
 
@@ -760,7 +800,7 @@
     .progress-bar-wrap {
       width: 100%;
       height: 10px;
-      background: #0e1017;
+      background: #ede3d1;
       border: 1px solid var(--card-border);
       border-radius: 4px;
       overflow: hidden;
@@ -771,34 +811,33 @@
     .progress-bar-fill {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, var(--card-border-light), var(--accent));
+      background: linear-gradient(90deg, #525866, #1a1c22);
       border-radius: 3px;
       transition: width 0.1s ease;
-      box-shadow: 0 0 8px var(--accent-glow);
     }
 
     /* Diagnostics Banner */
     .diag-banner {
-      background: #0e1017;
+      background: #fbf7ee;
       border: 1px solid var(--card-border);
       border-radius: var(--radius);
       padding: 10px 16px;
       margin-bottom: 16px;
-      font-size: 12px;
+      font-size: 13px;
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
     .diag-banner.warning {
-      background: rgba(235, 203, 139, 0.1);
-      border-color: rgba(235, 203, 139, 0.3);
+      background: #fef3c7;
+      border-color: #f59e0b;
       color: var(--warning);
     }
 
     .diag-banner.info {
-      background: rgba(235, 216, 170, 0.08);
-      border-color: rgba(235, 216, 170, 0.25);
+      background: #fbf7ee;
+      border-color: var(--card-border);
       color: var(--text);
     }
 
@@ -809,8 +848,8 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.88);
-      backdrop-filter: blur(8px);
+      background: rgba(26, 28, 34, 0.6);
+      backdrop-filter: blur(4px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -820,40 +859,45 @@
 
     .modal-card {
       background: var(--card-bg);
-      border: 1px solid var(--card-border-light);
+      border: 1px solid var(--card-border);
       border-radius: var(--radius);
       padding: 24px;
       max-width: 440px;
       width: 100%;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
     }
 
     /* Test Terminal Output */
     .test-terminal {
-      background: #08090d;
-      border: 1px solid var(--card-border);
+      background: #1e2127;
+      border: 1px solid #333844;
       border-radius: var(--radius);
       padding: 14px;
       font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 12px;
       line-height: 1.5;
       max-height: 320px;
       overflow-y: auto;
       white-space: pre-wrap;
-      color: var(--text-muted);
+      color: #f6f1e5;
       margin-top: 14px;
     }
 
     /* Responsive */
-    @media (max-width: 640px) {
+    @media (max-width: 900px) {
+      .action-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
       header { padding: 10px 14px; }
-      main { padding: 14px 10px; }
-      .nav-tabs { padding: 0 10px; }
-      .tab-btn { padding: 12px 12px; font-size: 12px; }
+      main { padding: 12px 10px; }
+      .action-cards-grid { grid-template-columns: 1fr; }
       .canvas-container { padding: 12px; }
       .stream-hud { gap: 10px; padding: 10px; }
       .hud-stat-val { font-size: 13px; }
-      .ascii-art { font-size: 9px; }
+      .ascii-art { font-size: 8px; }
     }
   </style>
 </head>
@@ -884,50 +928,34 @@
     </div>
   </header>
 
-  <!-- Mode Tabs -->
-  <nav class="nav-tabs">
-    <button class="tab-btn active" data-tab="tab-landing"><span class="yd">*</span> [ OVERVIEW ]</button>
-    <button class="tab-btn" data-tab="tab-send"><span class="yd">S</span> [ SEND ]</button>
-    <button class="tab-btn" data-tab="tab-receive"><span class="yd">R</span> [ RECEIVE ]</button>
-    <button class="tab-btn" data-tab="tab-loopback"><span class="yd">T</span> [ SIMULATE ]</button>
-  </nav>
-
   <!-- Main Viewports -->
   <main>
     <!-- ==================== LANDING / OVERVIEW TAB ==================== -->
     <div class="tab-pane active" id="tab-landing">
-      <!-- Hero ASCII Banner -->
-      <div class="card" style="text-align: center; border-color: var(--card-border-light);">
-        <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 16px;">
-          <img src="icons/logo.jpg" alt="Sabrina Logo" style="width: 76px; height: 76px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); box-shadow: 0 0 20px var(--accent-glow); transition: transform 0.2s ease;">
+      <!-- Compact Hero Box -->
+      <div class="hero-box">
+        <img src="icons/logo.jpg" alt="Sabrina Logo" class="hero-avatar">
+        <div class="ascii-hero-wrap">
+          <pre class="ascii-art">
++-------------------------------------------------------------------------------------------+
+|    ____    _    ____  ____  ___ _   _    _       ____  _   _    _    ____  _____ ____     |
+|   / ___|  / \  | __ )|  _ \|_ _| \ | |  / \     / ___|| | | |  / \  |  _ \| ____/ ___|    |
+|   \___ \ / _ \ |  _ \| |_) || ||  \| | / _ \    \___ \| |_| | / _ \ | |_) |  _| \___ \    |
+|    ___) / ___ \| |_) |  _ &lt; | || |\  |/ ___ \    ___) |  _  |/ ___ \|  _ &lt;| |___ ___) |   |
+|   |____/_/   \_\____/|_| \_\___|_| \_/_/   \_\  |____/|_| |_/_/   \_\_| \_\_____|____/    |
+|                                                                                           |
+|                  OPTICAL TRANSMISSION DIODE // ZERO PERSISTENCE RAM HEAP                  |
++-------------------------------------------------------------------------------------------+
+          </pre>
         </div>
-        <pre class="ascii-art" style="color: var(--accent); font-size: 11px; line-height: 1.25; overflow-x: auto; margin: 0 auto; display: inline-block; text-align: left;">
-+--------------------------------------------------------------------------+
-|  ____    _    ____  ____  ___ _   _    _      ____  _   _    _    ____  _____|
-| / ___|  / \  | __ )|  _ \|_ _| \ | |  / \    / ___|| | | |  / \  |  _ \| ____|
-| \___ \ / _ \ |  _ \| |_) || ||  \| | / _ \   \___ \| |_| | / _ \ | |_) |  _|  |
-|  ___) / ___ \| |_) |  _ &lt; | || |\  |/ ___ \   ___) |  _  |/ ___ \|  _ &lt;| |___ |
-| |____/_/   \_\____/|_| \_\___|_| \_/_/   \_\ |____/|_| |_/_/   \_\_| \_\_____|
-|                                                                          |
-|       OPTICAL TRANSMISSION DIODE // ZERO PERSISTENCE RAM HEAP            |
-+--------------------------------------------------------------------------+
-        </pre>
-        <div style="margin-top: 16px; font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: 0.5px;">
-          Air-Gapped Screen-to-Camera Optical File Transfer
-        </div>
-        <p style="margin: 8px auto 0 auto; max-width: 680px; font-size: 12px; color: var(--text-muted); line-height: 1.6;">
-          Sabrina Shares transports files up to 10 MB across physically isolated devices using a high-frequency cycling stream of fountain-coded QR frames. Completely unidirectional (optical diode). Zero network packets, zero Bluetooth, zero pairing, zero server telemetry, and zero persistent storage.
+        <p class="hero-desc">
+          Transports files up to 10 MB across physically isolated hardware via screen-to-camera optical fountain streams. Completely unidirectional (optical diode). Zero network packets, zero Bluetooth, zero pairing, and zero persistent storage.
         </p>
       </div>
 
-      <!-- 3 Primary Action Cards -->
-      <div class="card-title" style="margin-top: 24px; margin-bottom: 12px;">
-        <span>// PRIMARY OPERATIONS</span>
-        <span style="font-size: 11px; color: var(--text-muted); font-weight: 400;">SELECT MODE TO BEGIN</span>
-      </div>
-
+      <!-- 4 Primary Operation Cards -->
       <div class="action-cards-grid">
-        <!-- Send Card -->
+        <!-- Mode 01: Send -->
         <div class="action-card" id="landing-card-send">
           <div class="action-card-header">
             <span class="action-card-badge">[ MODE: 01 ]</span>
@@ -935,14 +963,14 @@
           </div>
           <div class="action-card-title">SEND PAYLOAD</div>
           <p class="action-card-desc">
-            Select any file up to 10 MB. Encodes with optional Deflate compression, client-side AES-256-GCM encryption, Luby Transform Soliton fountain codes, and streams dynamic QR bursts.
+            Select any file up to 10 MB. Deflate compression, optional AES-256-GCM encryption, Soliton fountain codes, and multi-grid optical burst emitter.
           </p>
           <button class="btn btn-primary" id="landing-btn-send" style="width: 100%; margin-top: auto;">
             [ TRANSMIT FILE ] &rarr;
           </button>
         </div>
 
-        <!-- Receive Card -->
+        <!-- Mode 02: Receive -->
         <div class="action-card" id="landing-card-receive">
           <div class="action-card-header">
             <span class="action-card-badge">[ MODE: 02 ]</span>
@@ -950,14 +978,14 @@
           </div>
           <div class="action-card-title">RECEIVE PAYLOAD</div>
           <p class="action-card-desc">
-            Point camera at the transmitting display. The Web Worker peeling engine decodes droplets on the fly, solves missing frames, verifies SHA-256, and terminates scanning automatically.
+            Point camera at the emitting screen. Web Worker peeling solver recovers missing frames on the fly, verifies SHA-256, and terminates automatically.
           </p>
           <button class="btn btn-primary" id="landing-btn-receive" style="width: 100%; margin-top: auto;">
             [ SCAN &amp; DECODE ] &rarr;
           </button>
         </div>
 
-        <!-- Simulate / Test Card -->
+        <!-- Mode 03: Simulate / Test -->
         <div class="action-card" id="landing-card-test">
           <div class="action-card-header">
             <span class="action-card-badge">[ MODE: 03 ]</span>
@@ -965,21 +993,42 @@
           </div>
           <div class="action-card-title">SIMULATE &amp; TEST</div>
           <p class="action-card-desc">
-            Run an in-browser virtual optical loopback with 100 KB to 10 MB test files and up to 40% artificial packet drop. Execute the automated cryptographic and fountain test suite.
+            Run an in-browser virtual optical loopback with 100 KB to 10 MB payloads and up to 40% packet drop. Execute the automated test suite.
           </p>
           <button class="btn btn-secondary" id="landing-btn-test" style="width: 100%; margin-top: auto;">
             [ RUN SIMULATION ] &rarr;
           </button>
         </div>
-      </div>
 
-      <!-- System Architecture Section -->
-      <div class="card" style="margin-top: 24px;">
+        <!-- Mode 04: Know More -->
+        <div class="action-card" id="landing-card-know-more">
+          <div class="action-card-header">
+            <span class="action-card-badge">[ MODE: 04 ]</span>
+            <span class="yd action-card-icon">i</span>
+          </div>
+          <div class="action-card-title">KNOW MORE</div>
+          <p class="action-card-desc">
+            Explore the protocol pipeline, physical optical diode isolation, Luby Transform Soliton mathematics, and zero-persistence architecture.
+          </p>
+          <button class="btn btn-secondary" id="landing-btn-know-more" style="width: 100%; margin-top: auto;">
+            [ ARCHITECTURE &amp; SPECS ] &rarr;
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== KNOW MORE / ARCHITECTURE TAB ==================== -->
+    <div class="tab-pane" id="tab-know-more">
+      <button class="btn btn-secondary btn-back-home">&larr; [ BACK TO OVERVIEW ]</button>
+
+      <!-- System Architecture Diagram -->
+      <div class="card">
         <div class="card-title">
           <span>// PROTOCOL &amp; PIPELINE ARCHITECTURE</span>
           <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">[SPEC: RFC-LT-V1]</span>
         </div>
-        <pre class="ascii-art" style="color: var(--text); font-size: 11px; line-height: 1.35; overflow-x: auto; padding: 12px; background: #0c0d10; border: 1px solid var(--card-border); border-radius: var(--radius);">
+        <div style="background: #fbf7ee; border: 1px solid var(--card-border); border-radius: var(--radius); padding: 12px; overflow-x: auto;">
+          <pre class="ascii-art">
 +-----------------------------------------------------------------------------------------+
 |                              TRANSMITTER PIPELINE (SENDER)                              |
 +-----------------------------------------------------------------------------------------+
@@ -1009,7 +1058,7 @@
 |                                                                                         |
 +-----------------------------------------------------------------------------------------+
                                               |
-                          ~~~~~~~~~~~~~~~~~~~~| (PHYSICAL OPTICAL AIR-GAP) ~~~~~~~~~~~~~~~~~~
+                          ~~~~~~~~~~~~~~~~~~~~| (PHYSICAL OPTICAL DIODE) ~~~~~~~~~~~~~~~~~~~~
                                               v
 +-----------------------------------------------------------------------------------------+
 |                               RECEIVER PIPELINE (CAMERA)                                |
@@ -1038,11 +1087,70 @@
 |   +---------------------------------------------------------------------------------+   |
 |                                                                                         |
 +-----------------------------------------------------------------------------------------+
-        </pre>
+          </pre>
+        </div>
+      </div>
+
+      <!-- Core Working Protocol -->
+      <div class="card">
+        <div class="card-title">
+          <span>// CORE PROTOCOL &amp; TRANSMISSION LIFECYCLE</span>
+          <span style="font-size: 11px; color: var(--accent); font-family: var(--font-mono);">[8-STAGE ENGINE]</span>
+        </div>
+        <div class="features-grid">
+          <div class="feature-item">
+            <div class="feature-title">[ 01. INGESTION &amp; DIGEST ]</div>
+            <div class="feature-desc">
+              The file is read into an in-memory <code>Uint8Array</code>. A SHA-256 digest is immediately computed using native WebCrypto to establish payload truth before any transformation.
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">[ 02. LOSSLESS COMPRESSION ]</div>
+            <div class="feature-desc">
+              <code>fflate</code> executes synchronous DEFLATE compression. If compressed size is less than 98% of original size, the compressed buffer is used; otherwise raw bytes are retained.
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">[ 03. AES-256-GCM HARDENING ]</div>
+            <div class="feature-desc">
+              When encryption is enabled, a user passphrase derives a 256-bit key via PBKDF2-SHA256 (200,000 iterations, 128-bit random salt). WebCrypto encrypts the payload with a random 96-bit IV.
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">[ 04. FOUNTAIN PARTITIONING ]</div>
+            <div class="feature-desc">
+              The buffer is sliced into <em>K</em> equal source blocks of size <em>B</em> (128B to 768B). An LT Soliton degree distribution generator creates deterministic combinations of blocks using PRNG seeds.
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">[ 05. FRAME SYNTHESIS ]</div>
+            <div class="feature-desc">
+              Packets are packaged with 40-byte binary headers and CRC32 checksums, then rendered into 1x1, 2x2, or 3x3 QR matrices. Offscreen canvases buffer upcoming frames for smooth 8-24 FPS animation.
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">[ 06. OPTICAL ACQUISITION ]</div>
+            <div class="feature-desc">
+              The receiver captures high-res camera video frames. Native hardware <code>BarcodeDetector</code> scans with hardware acceleration, falling back to multi-region tiled <code>jsQR</code> when needed.
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">[ 07. WORKER RIPPLE SOLVER ]</div>
+            <div class="feature-desc">
+              Decoded binary packets pass to a background Web Worker. Valid CRC32 packets enter a ripple queue: degree-1 droplets immediately solve blocks, which iteratively cascade and peel higher-degree droplets using <code>Uint32Array</code> XOR.
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">[ 08. VERIFICATION &amp; AUTO-STOP ]</div>
+            <div class="feature-desc">
+              Once all <em>K</em> blocks are resolved, the payload is decompressed and decrypted. If the SHA-256 hash matches the transmitter's signature, the camera is terminated instantly and the file is saved.
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Why Unique Section -->
-      <div class="card" style="margin-top: 24px;">
+      <div class="card">
         <div class="card-title">
           <span>// WHY SABRINA SHARES IS UNIQUE</span>
           <span style="font-size: 11px; color: var(--accent); font-family: var(--font-mono);">[ZERO-TRUST]</span>
@@ -1092,6 +1200,7 @@
     <div class="tab-pane" id="tab-send">
       <!-- File Selection View -->
       <div id="sender-setup-view">
+        <button class="btn btn-secondary btn-back-home">&larr; [ BACK TO OVERVIEW ]</button>
         <div class="card">
           <div class="card-title">// 01. SELECT PAYLOAD FILE (UP TO 10 MB)</div>
           <div class="dropzone" id="dropzone">
@@ -1267,6 +1376,7 @@
 
     <!-- ==================== RECEIVER TAB ==================== -->
     <div class="tab-pane" id="tab-receive">
+      <button class="btn btn-secondary btn-back-home">&larr; [ BACK TO OVERVIEW ]</button>
       <div class="card">
         <div class="card-title">
           <span>// CAMERA OPTICAL VIEWFINDER</span>
@@ -1372,8 +1482,9 @@
 
     <!-- ==================== LOOPBACK & SELF-TESTS TAB ==================== -->
     <div class="tab-pane" id="tab-loopback">
+      <button class="btn btn-secondary btn-back-home">&larr; [ BACK TO OVERVIEW ]</button>
       <div class="card">
-        <div class="card-title">// OPTICAL LOOPBACK SIMULATION (VIRTUAL AIR-GAP)</div>
+        <div class="card-title">// OPTICAL LOOPBACK SIMULATION (VIRTUAL OPTICAL LINK)</div>
         <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5;">
           Simulate transmitting full 100 KB, 1 MB, 5 MB, or 10 MB payloads through an emulated lossy channel. Packets generated by the fountain encoder are piped directly into the worker decoder with artificial loss and jitter.
         </p>
@@ -2202,6 +2313,11 @@ Minimum version required to store current data is: `+o+`.
     document.getElementById('landing-card-receive')?.addEventListener('click', () => activateTab('tab-receive'));
     document.getElementById('landing-btn-test')?.addEventListener('click', (e) => { e.stopPropagation(); activateTab('tab-loopback'); });
     document.getElementById('landing-card-test')?.addEventListener('click', () => activateTab('tab-loopback'));
+    document.getElementById('landing-btn-know-more')?.addEventListener('click', (e) => { e.stopPropagation(); activateTab('tab-know-more'); });
+    document.getElementById('landing-card-know-more')?.addEventListener('click', () => activateTab('tab-know-more'));
+    document.querySelectorAll('.btn-back-home').forEach(btn => {
+      btn.addEventListener('click', () => activateTab('tab-landing'));
+    });
 
     // --- PRESET SELECTION ---
     const presetBtns = document.querySelectorAll('.preset-btn');
@@ -2424,7 +2540,7 @@ Minimum version required to store current data is: `+o+`.
       Sabrina.senderStartTime = performance.now();
       Sabrina.senderRunning = true;
       Sabrina.senderPaused = false;
-      document.getElementById('btn-pause-send').textContent = '⏸️ Pause';
+      document.getElementById('btn-pause-send').innerHTML = '<span class="yd">P</span> [ PAUSE ]';
       Sabrina.ringBuffer = [];
       senderSeedCounter = 1;
       framesSinceMetadata = 999;
@@ -2448,7 +2564,7 @@ Minimum version required to store current data is: `+o+`.
 
     document.getElementById('btn-pause-send').addEventListener('click', (e) => {
       Sabrina.senderPaused = !Sabrina.senderPaused;
-      e.target.textContent = Sabrina.senderPaused ? "▶️ Resume" : "⏸️ Pause";
+      e.target.innerHTML = Sabrina.senderPaused ? '<span class="yd">S</span> [ RESUME ]' : '<span class="yd">P</span> [ PAUSE ]';
     });
 
     document.getElementById('btn-fullscreen').addEventListener('click', () => {
@@ -3391,7 +3507,7 @@ Minimum version required to store current data is: `+o+`.
         this.log("[Test 5/6] WebCrypto AES-256-GCM PBKDF2 (200k iter) Round-Trip...");
         {
           const pass = "SabrinaTestPass123!";
-          const plain = new TextEncoder().encode("Air-gapped secure payload data.");
+          const plain = new TextEncoder().encode("Sabrina Shares optical secure payload.");
           const salt = crypto.getRandomValues(new Uint8Array(16));
           const iv = crypto.getRandomValues(new Uint8Array(12));
           const baseKey = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey']);
@@ -3400,7 +3516,7 @@ Minimum version required to store current data is: `+o+`.
           const decKey = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 200000, hash: 'SHA-256' }, baseKey, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
           const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, decKey, cipher);
           const resStr = new TextDecoder().decode(decrypted);
-          if (resStr !== "Air-gapped secure payload data.") throw new Error("Decrypted string mismatch");
+          if (resStr !== "Sabrina Shares optical secure payload.") throw new Error("Decrypted string mismatch");
           this.log("  [PASS] WebCrypto AES-256-GCM + PBKDF2 roundtrip verified.\n");
         }
         

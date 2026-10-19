@@ -11,7 +11,7 @@
  * - No background sync, no push notifications, no analytics.
  */
 
-const CACHE_NAME = 'sabrina-shell-v1.1.1';
+const CACHE_NAME = 'sabrina-shell-v1.3.0';
 
 const PRECACHE_ASSETS = [
   './',
@@ -22,6 +22,7 @@ const PRECACHE_ASSETS = [
   'icons/icon-512.png',
   'icons/icon-maskable-512.png',
   'icons/logo.jpg',
+  'fonts/bitcount-single-ink.ttf',
   'fonts/bitcount-ink.ttf',
   'fonts/yarndings-12.ttf',
   'sw.js'

@@ -1,13 +1,13 @@
 {
   "name": "Sabrina Shares",
   "short_name": "Sabrina",
-  "description": "Offline, air-gapped optical file diode (up to 10 MB) via cycling stream of QR codes with Luby Transform fountain codes.",
+  "description": "Offline screen-to-camera optical file diode (up to 10 MB) via cycling stream of QR codes with Luby Transform fountain codes.",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",
   "orientation": "any",
-  "theme_color": "#0c0d10",
-  "background_color": "#0c0d10",
+  "theme_color": "#f6f1e5",
+  "background_color": "#f6f1e5",
   "icons": [
     {
       "src": "icons/icon-192.png",
