@@ -853,8 +853,8 @@
               </div>
               <div class="slider-row">
                 <span>Block Size (Bytes):</span>
-                <input type="range" id="slider-blocksize" min="128" max="896" step="32" value="512">
-                <span id="lbl-blocksize" style="font-family: var(--font-mono); font-weight: 700; width: 45px;">512B</span>
+                <input type="range" id="slider-blocksize" min="128" max="768" step="32" value="384">
+                <span id="lbl-blocksize" style="font-family: var(--font-mono); font-weight: 700; width: 45px;">384B</span>
               </div>
             </div>
           </details>
@@ -1365,32 +1365,69 @@ self.onmessage = async function(e) {
     // Tile scan with jsQR
     const { imageData, width, height, tileId } = payload;
     const qrResult = self.jsQR(imageData, width, height, { inversionAttempts: 'dontInvert' });
-    if (qrResult && qrResult.binaryData && qrResult.binaryData.length >= 24) {
-      const pktBytes = new Uint8Array(qrResult.binaryData);
-      handlePacketBytes(pktBytes);
-      self.postMessage({ type: 'qr_detected', tileId, points: qrResult.location });
+    if (qrResult) {
+      let accepted = false;
+      if (qrResult.data) {
+        accepted = handlePacketTextOrBytes(qrResult.data, qrResult.binaryData);
+      } else if (qrResult.binaryData) {
+        accepted = handlePacketBytes(new Uint8Array(qrResult.binaryData));
+      }
+      if (accepted) {
+        self.postMessage({ type: 'qr_detected', tileId, points: qrResult.location });
+      }
     }
+    self.postMessage({ type: 'scan_done', tileId });
     return;
   }
   
   if (action === 'process_packet') {
-    const pktBytes = new Uint8Array(payload.bytes);
-    handlePacketBytes(pktBytes);
+    if (payload.text) {
+      handlePacketTextOrBytes(payload.text, null);
+    } else if (payload.bytes) {
+      handlePacketBytes(new Uint8Array(payload.bytes));
+    }
+    return;
   }
 };
+
+function base64ToUint8(b64) {
+  const bin = atob(b64);
+  const u8 = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+  return u8;
+}
+
+function handlePacketTextOrBytes(text, binaryData) {
+  if (typeof text === 'string') {
+    const trimmed = text.trim();
+    if (trimmed.length >= 24) {
+      try {
+        const u8 = base64ToUint8(trimmed);
+        if (handlePacketBytes(u8)) return true;
+      } catch (e) {}
+    }
+    const latin = new Uint8Array(text.length);
+    for (let i = 0; i < text.length; i++) latin[i] = text.charCodeAt(i) & 0xff;
+    if (handlePacketBytes(latin)) return true;
+  }
+  if (binaryData && binaryData.length >= 24) {
+    if (handlePacketBytes(new Uint8Array(binaryData))) return true;
+  }
+  return false;
+}
 
 function handlePacketBytes(pktBytes) {
   const parsed = parsePacketBytes(pktBytes);
   if (!parsed) {
     if (decoder) decoder.stats.rejected++;
-    return;
+    return false;
   }
   
   if (parsed.type === 'meta') {
     if (!currentSessionId) {
       currentSessionId = parsed.sessionId;
     }
-    if (parsed.sessionId !== currentSessionId) return;
+    if (parsed.sessionId !== currentSessionId) return false;
     
     if (!metadata) {
       metadata = parsed;
@@ -1401,6 +1438,9 @@ function handlePacketBytes(pktBytes) {
         mimeType: metadata.mimeType,
         isCompressed: metadata.isCompressed,
         isEncrypted: metadata.isEncrypted,
+        salt: metadata.salt,
+        iv: metadata.iv,
+        sha256: metadata.sha256,
         totalBlocks: metadata.totalBlocks,
         blockSize: metadata.blockSize,
         sessionId: metadata.sessionId
@@ -1410,7 +1450,7 @@ function handlePacketBytes(pktBytes) {
         decoder = new PeelingDecoder(metadata.totalBlocks, metadata.blockSize, metadata.sessionId);
       }
     }
-    return;
+    return true;
   }
   
   if (parsed.type === 'data') {
@@ -1419,7 +1459,7 @@ function handlePacketBytes(pktBytes) {
     }
     if (parsed.sessionId !== currentSessionId) {
       if (decoder) decoder.stats.rejected++;
-      return;
+      return false;
     }
     
     if (!decoder) {
@@ -1442,7 +1482,9 @@ function handlePacketBytes(pktBytes) {
     if (decoder.isComplete() && metadata) {
       finalizeTransfer();
     }
+    return true;
   }
+  return false;
 }
 
 async function finalizeTransfer() {
@@ -1492,7 +1534,7 @@ Minimum version required to store current data is: `+o+`.
       fps: 8,
       grid: '1x1',
       ecc: 'M',
-      blockSize: 512,
+      blockSize: 384,
       
       // Active Sender state
       senderRunning: false,
@@ -1523,7 +1565,23 @@ Minimum version required to store current data is: `+o+`.
       wakeLock: null
     };
 
-    // --- UTILITIES: CRC32, PRNG, Crypto ---
+    // --- UTILITIES: CRC32, PRNG, Crypto, Base64 ---
+    function uint8ToBase64(u8) {
+      let binary = '';
+      const len = u8.byteLength;
+      for (let i = 0; i < len; i += 8192) {
+        binary += String.fromCharCode.apply(null, u8.subarray(i, Math.min(i + 8192, len)));
+      }
+      return btoa(binary);
+    }
+
+    function base64ToUint8(b64) {
+      const bin = atob(b64);
+      const u8 = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+      return u8;
+    }
+
     const CRC_TABLE = (() => {
       const t = new Uint32Array(256);
       for (let i = 0; i < 256; i++) {
@@ -1762,17 +1820,17 @@ Minimum version required to store current data is: `+o+`.
           Sabrina.fps = 8;
           Sabrina.grid = '1x1';
           Sabrina.ecc = 'M';
-          Sabrina.blockSize = 512;
+          Sabrina.blockSize = 384;
         } else if (p === 'balanced') {
           Sabrina.fps = 10;
           Sabrina.grid = '2x2';
           Sabrina.ecc = 'L';
-          Sabrina.blockSize = 280;
+          Sabrina.blockSize = 256;
         } else if (p === 'fast') {
           Sabrina.fps = 12;
           Sabrina.grid = '3x3';
           Sabrina.ecc = 'L';
-          Sabrina.blockSize = 160;
+          Sabrina.blockSize = 128;
         }
         syncUiControls();
         updateTimeEstimate();
@@ -2064,9 +2122,8 @@ Minimum version required to store current data is: `+o+`.
       for (let r = 0; r < gridRows; r++) {
         for (let c = 0; c < gridCols; c++) {
           const pktBytes = generateNextPacket();
-          const qrData = await window.QRCode.create([
-            { data: pktBytes, mode: 'byte' }
-          ], {
+          const b64Data = uint8ToBase64(pktBytes);
+          const qrData = await window.QRCode.create(b64Data, {
             errorCorrectionLevel: Sabrina.ecc
           });
           
@@ -2347,26 +2404,53 @@ Minimum version required to store current data is: `+o+`.
         }
       }
       
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: { ideal: "environment" },
-            width: { ideal: 1920, min: 1280 },
-            height: { ideal: 1080, min: 720 },
-            advanced: [{ focusMode: "continuous" }]
-          },
-          audio: false
-        });
-        
-        Sabrina.cameraStream = stream;
-        video.srcObject = stream;
-        await video.play();
-        
-        setDiag("info", "Camera active. Point at sender QR stream...");
-        startCameraScannerLoop();
-      } catch (err) {
-        setDiag("warning", "Camera access denied or unavailable: " + err.message);
+      // Progressive constraints fallback for mobile (portrait & landscape) and desktop
+      const constraintsList = [
+        { video: { facingMode: { ideal: currentFacingMode }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false },
+        { video: { facingMode: { ideal: currentFacingMode }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
+        { video: { facingMode: currentFacingMode }, audio: false },
+        { video: true, audio: false }
+      ];
+      
+      let stream = null;
+      let lastErr = null;
+      for (const constraints of constraintsList) {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia(constraints);
+          if (stream) break;
+        } catch (err) {
+          lastErr = err;
+        }
       }
+      
+      if (!stream) {
+        setDiag("warning", "Camera access denied or unavailable: " + (lastErr ? lastErr.message : "No camera found") + ". Please ensure camera permissions are allowed.");
+        return;
+      }
+      
+      Sabrina.cameraStream = stream;
+      video.setAttribute("playsinline", "true");
+      video.setAttribute("muted", "true");
+      video.muted = true;
+      video.srcObject = stream;
+      
+      try {
+        await video.play();
+      } catch (err) {
+        console.warn("Video play error:", err);
+      }
+      
+      // Attempt continuous autofocus where supported
+      try {
+        const track = stream.getVideoTracks()[0];
+        if (track && typeof track.applyConstraints === 'function') {
+          await track.applyConstraints({ advanced: [{ focusMode: "continuous" }] }).catch(() => {});
+        }
+      } catch (e) {}
+      
+      const modeDesc = Sabrina.barcodeDetector ? "Native HW Scanner" : "Software Scanner";
+      setDiag("info", "Camera active (" + modeDesc + "). Point at sender QR stream...");
+      startCameraScannerLoop();
     }
 
     function stopReceiverCamera() {
@@ -2386,19 +2470,114 @@ Minimum version required to store current data is: `+o+`.
     });
 
     let lastDetectedTime = 0;
+    let lastValidPacketTime = 0;
 
     async function startCameraScannerLoop() {
       const video = document.getElementById('camera-video');
       const scanCanvas = document.createElement('canvas');
       const scanCtx = scanCanvas.getContext('2d', { willReadFrequently: true });
+      const reticleCanvas = document.getElementById('reticle-canvas');
+      if (reticleCanvas) {
+        reticleCanvas.width = reticleCanvas.clientWidth || 400;
+        reticleCanvas.height = reticleCanvas.clientHeight || 300;
+      }
+      const reticleCtx = reticleCanvas ? reticleCanvas.getContext('2d') : null;
       
       let fpsCounter = 0;
       let lastFpsCheck = performance.now();
+      let isWorkerScanning = false;
+      
+      function drawReticleHighlight(points) {
+        if (!reticleCtx || !points || !reticleCanvas) return;
+        const rw = reticleCanvas.width;
+        const rh = reticleCanvas.height;
+        reticleCtx.clearRect(0, 0, rw, rh);
+        reticleCtx.strokeStyle = '#10b981';
+        reticleCtx.lineWidth = 3;
+        reticleCtx.fillStyle = 'rgba(16, 185, 129, 0.2)';
+        
+        reticleCtx.beginPath();
+        if (Array.isArray(points)) {
+          points.forEach((pt, idx) => {
+            const x = (pt.x / (video.videoWidth || 1)) * rw;
+            const y = (pt.y / (video.videoHeight || 1)) * rh;
+            if (idx === 0) reticleCtx.moveTo(x, y);
+            else reticleCtx.lineTo(x, y);
+          });
+          reticleCtx.closePath();
+        } else if (points.topLeftCorner) {
+          const corners = [points.topLeftCorner, points.topRightCorner, points.bottomRightCorner, points.bottomLeftCorner];
+          corners.forEach((pt, idx) => {
+            const x = (pt.x / (scanCanvas.width || 1)) * rw;
+            const y = (pt.y / (scanCanvas.height || 1)) * rh;
+            if (idx === 0) reticleCtx.moveTo(x, y);
+            else reticleCtx.lineTo(x, y);
+          });
+          reticleCtx.closePath();
+        }
+        reticleCtx.stroke();
+        reticleCtx.fill();
+        
+        setTimeout(() => {
+          if (reticleCtx) reticleCtx.clearRect(0, 0, rw, rh);
+        }, 200);
+      }
+      
+      // Worker onmessage handler for camera scanner loop
+      Sabrina.worker.onmessage = async (e) => {
+        const { type, metadata, solved, total, stats, rawData, tileId, points, message } = e.data;
+        
+        if (type === 'scan_done') {
+          isWorkerScanning = false;
+        }
+        
+        if (type === 'qr_detected') {
+          isWorkerScanning = false;
+          lastDetectedTime = performance.now();
+          lastValidPacketTime = performance.now();
+          drawReticleHighlight(points);
+        }
+        
+        if (type === 'meta_received') {
+          lastDetectedTime = performance.now();
+          lastValidPacketTime = performance.now();
+          Sabrina.detectedMetadata = metadata;
+          document.getElementById('recv-filename').textContent = metadata.filename;
+          document.getElementById('recv-orig-size').textContent = formatBytes(metadata.origSize);
+          document.getElementById('recv-blocks-count').textContent = metadata.totalBlocks + ' blocks (' + metadata.blockSize + 'B)';
+          document.getElementById('recv-security-badge').textContent = metadata.isEncrypted ? '🔒 AES-256-GCM' : 'Plaintext';
+          document.getElementById('recv-meta-card').style.display = 'block';
+          
+          setDiag("info", "Metadata locked: " + metadata.filename + " (" + formatBytes(metadata.origSize) + "). Receiving data...");
+        }
+        
+        if (type === 'progress') {
+          lastDetectedTime = performance.now();
+          lastValidPacketTime = performance.now();
+          document.getElementById('hud-recv-solved').textContent = solved + ' / ' + total;
+          document.getElementById('hud-recv-accepted').textContent = stats.accepted;
+          document.getElementById('hud-recv-duplicates').textContent = stats.duplicates;
+          document.getElementById('hud-recv-rejected').textContent = stats.rejected;
+          
+          const pct = Math.min(100, Math.floor((solved / total) * 100));
+          document.getElementById('recv-progress-bar').style.width = pct + '%';
+          document.getElementById('recv-progress-percent').textContent = pct + '%';
+          document.getElementById('recv-progress-text').textContent = "Decoding Fountain (" + solved + " / " + total + " blocks)";
+        }
+        
+        if (type === 'status_message') {
+          setDiag("info", message);
+        }
+        
+        if (type === 'raw_assembled') {
+          handleReceivedData(rawData, metadata);
+        }
+      };
       
       async function scanFrame() {
         if (!Sabrina.receiverActive) return;
         
-        if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+        if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA && video.videoWidth > 0) {
           fpsCounter++;
           const now = performance.now();
           if (now - lastFpsCheck >= 1000) {
@@ -2408,57 +2587,61 @@ Minimum version required to store current data is: `+o+`.
             document.getElementById('hud-recv-fps').textContent = Sabrina.scanFps + ' FPS';
             
             // Check diagnostics
-            if (now - lastDetectedTime > 2000 && lastDetectedTime > 0) {
+            if (now - lastDetectedTime > 3000 && lastDetectedTime > 0) {
               setDiag("warning", "No QR detected. Align camera with sender screen or move closer.");
+            } else if (now - lastValidPacketTime > 5000 && lastValidPacketTime > 0) {
+              setDiag("warning", "Scanning frames, but waiting for new blocks. Hold steady.");
             }
           }
           
+          // 1. Native Hardware BarcodeDetector (when available)
           if (Sabrina.barcodeDetector) {
-            // Hardware-accelerated native detector
             try {
               const barcodes = await Sabrina.barcodeDetector.detect(video);
               if (barcodes.length > 0) {
                 lastDetectedTime = now;
                 for (const bc of barcodes) {
-                  let rawBytes = null;
                   if (bc.rawBytes) {
-                    rawBytes = new Uint8Array(bc.rawBytes);
-                  } else if (bc.rawValue) {
-                    // Test Latin-1 vs UTF-8
-                    const str = bc.rawValue;
-                    const latin = new Uint8Array(str.length);
-                    for (let i = 0; i < str.length; i++) latin[i] = str.charCodeAt(i) & 0xff;
-                    if (calcCrc32(latin, 0, latin.length - 4) === new DataView(latin.buffer).getUint32(latin.length - 4, false)) {
-                      rawBytes = latin;
-                    } else {
-                      rawBytes = new TextEncoder().encode(str);
-                    }
-                  }
-                  
-                  if (rawBytes) {
                     Sabrina.worker.postMessage({
                       action: 'process_packet',
-                      payload: { bytes: rawBytes }
+                      payload: { bytes: new Uint8Array(bc.rawBytes) }
                     });
+                  }
+                  if (bc.rawValue) {
+                    Sabrina.worker.postMessage({
+                      action: 'process_packet',
+                      payload: { text: bc.rawValue }
+                    });
+                  }
+                  if (bc.cornerPoints) {
+                    drawReticleHighlight(bc.cornerPoints);
                   }
                 }
               }
             } catch (err) {}
-          } else {
-            // Fallback jsQR scanning via Worker
-            scanCanvas.width = video.videoWidth;
-            scanCanvas.height = video.videoHeight;
-            scanCtx.drawImage(video, 0, 0);
+          }
+          
+          // 2. High-performance downscaled jsQR scan in Web Worker
+          if (!isWorkerScanning) {
+            const maxDim = 640;
+            const vw = video.videoWidth;
+            const vh = video.videoHeight;
+            const scale = Math.min(1, maxDim / Math.max(vw, vh));
+            const dw = Math.round(vw * scale);
+            const dh = Math.round(vh * scale);
             
-            // For grids, tile the frame; for single QR scan center
-            const w = scanCanvas.width;
-            const h = scanCanvas.height;
-            const imgData = scanCtx.getImageData(0, 0, w, h);
+            if (scanCanvas.width !== dw || scanCanvas.height !== dh) {
+              scanCanvas.width = dw;
+              scanCanvas.height = dh;
+            }
+            scanCtx.drawImage(video, 0, 0, dw, dh);
+            const imgData = scanCtx.getImageData(0, 0, dw, dh);
             
+            isWorkerScanning = true;
             Sabrina.worker.postMessage({
               action: 'scan_tile',
-              payload: { imageData: imgData.data, width: w, height: h, tileId: 0 }
-            });
+              payload: { imageData: imgData.data, width: dw, height: dh, tileId: 0 }
+            }, [imgData.data.buffer]);
           }
         }
         
