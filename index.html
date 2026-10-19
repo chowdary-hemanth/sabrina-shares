@@ -856,6 +856,15 @@
                 <input type="range" id="slider-blocksize" min="128" max="768" step="32" value="384">
                 <span id="lbl-blocksize" style="font-family: var(--font-mono); font-weight: 700; width: 45px;">384B</span>
               </div>
+              <div class="slider-row">
+                <span>Auto-stop Stream:</span>
+                <select id="select-autostop" class="form-control" style="width: 140px; padding: 6px 10px;">
+                  <option value="0">Continuous Loop</option>
+                  <option value="2">Stop after 2 Loops</option>
+                  <option value="3" selected>Stop after 3 Loops</option>
+                  <option value="5">Stop after 5 Loops</option>
+                </select>
+              </div>
             </div>
           </details>
 
@@ -879,12 +888,15 @@
 
       <!-- Active Flashing Transmission Screen -->
       <div id="sender-active-view">
-        <div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 10px;">
-          <button class="btn btn-secondary" id="btn-stop-send">⏹️ Stop Stream</button>
+        <div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 8px;">
+          <button class="btn btn-danger" id="btn-stop-send">⏹️ Stop Stream</button>
           <div style="display: flex; gap: 8px;">
             <button class="btn btn-secondary" id="btn-pause-send">⏸️ Pause</button>
             <button class="btn btn-primary" id="btn-fullscreen">⛶ Fullscreen</button>
           </div>
+        </div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px; text-align: center; background: rgba(99, 102, 241, 0.08); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(99, 102, 241, 0.2);">
+          📡 Broadcasting fountain stream. When receiver shows <b>"Transfer Complete"</b>, tap <b>Stop Stream</b> anytime.
         </div>
 
         <div class="canvas-container" id="canvas-wrapper">
@@ -929,8 +941,13 @@
         <div class="viewfinder-card">
           <video id="camera-video" playsinline autoplay muted></video>
           <canvas id="reticle-canvas"></canvas>
-          <div class="reticle-frame">
+          <div class="reticle-frame" id="reticle-frame">
             <div class="reticle-laser"></div>
+          </div>
+          <div id="viewfinder-success-overlay" style="display: none; position: absolute; inset: 0; background: rgba(11, 13, 20, 0.88); backdrop-filter: blur(8px); flex-direction: column; align-items: center; justify-content: center; z-index: 10;">
+            <div style="font-size: 52px; margin-bottom: 6px;">✅</div>
+            <div style="font-weight: 800; font-size: 17px; color: var(--success); letter-spacing: 0.5px;">TRANSFER COMPLETE</div>
+            <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Camera stopped • 100% Verified</div>
           </div>
         </div>
 
@@ -1003,15 +1020,16 @@
       <div class="card" id="recv-complete-card" style="display: none; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.05);">
         <div class="card-title" style="color: var(--success);">🎉 File Reconstructed & Verified!</div>
         <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
-          All source blocks have been decoded with zero errors. The SHA-256 cryptographic digest matches the sender's signature exactly.
+          All source blocks have been decoded with zero errors. Camera stream deactivated. The SHA-256 cryptographic digest matches the sender's signature exactly.
         </p>
         <div style="background: #0d121c; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--card-border); margin-bottom: 16px;">
           <div class="info-label">Verified SHA-256 Plaintext Digest</div>
           <div id="recv-verified-sha" style="font-family: var(--font-mono); font-size: 12px; color: var(--success); word-break: break-all;">-</div>
         </div>
-        <div style="display: flex; gap: 10px;">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
           <button class="btn btn-primary btn-large" id="btn-download-file">💾 Save File</button>
           <button class="btn btn-danger" id="btn-save-wipe">Save & Wipe</button>
+          <button class="btn btn-secondary" id="btn-scan-another">🔄 Receive Another File</button>
         </div>
       </div>
     </div>
@@ -1344,6 +1362,7 @@ let decoder = null;
 let metadata = null;
 let currentSessionId = null;
 let lastProgressReport = 0;
+let hasFinalized = false;
 
 self.onmessage = async function(e) {
   const { action, payload } = e.data;
@@ -1357,11 +1376,16 @@ self.onmessage = async function(e) {
     decoder = null;
     metadata = null;
     currentSessionId = null;
+    hasFinalized = false;
     self.postMessage({ type: 'reset_done' });
     return;
   }
   
   if (action === 'scan_tile') {
+    if (hasFinalized) {
+      self.postMessage({ type: 'scan_done', tileId: payload.tileId });
+      return;
+    }
     // Tile scan with jsQR
     const { imageData, width, height, tileId } = payload;
     const qrResult = self.jsQR(imageData, width, height, { inversionAttempts: 'dontInvert' });
@@ -1381,6 +1405,7 @@ self.onmessage = async function(e) {
   }
   
   if (action === 'process_packet') {
+    if (hasFinalized) return;
     if (payload.text) {
       handlePacketTextOrBytes(payload.text, null);
     } else if (payload.bytes) {
@@ -1417,6 +1442,7 @@ function handlePacketTextOrBytes(text, binaryData) {
 }
 
 function handlePacketBytes(pktBytes) {
+  if (hasFinalized) return false;
   const parsed = parsePacketBytes(pktBytes);
   if (!parsed) {
     if (decoder) decoder.stats.rejected++;
@@ -1450,6 +1476,11 @@ function handlePacketBytes(pktBytes) {
         decoder = new PeelingDecoder(metadata.totalBlocks, metadata.blockSize, metadata.sessionId);
       }
     }
+    
+    if (decoder && decoder.isComplete() && metadata && !hasFinalized) {
+      hasFinalized = true;
+      finalizeTransfer();
+    }
     return true;
   }
   
@@ -1479,7 +1510,8 @@ function handlePacketBytes(pktBytes) {
       });
     }
     
-    if (decoder.isComplete() && metadata) {
+    if (decoder.isComplete() && metadata && !hasFinalized) {
+      hasFinalized = true;
       finalizeTransfer();
     }
     return true;
@@ -1535,6 +1567,7 @@ Minimum version required to store current data is: `+o+`.
       grid: '1x1',
       ecc: 'M',
       blockSize: 384,
+      autoStopLoops: 3,
       
       // Active Sender state
       senderRunning: false,
@@ -1844,6 +1877,8 @@ Minimum version required to store current data is: `+o+`.
       document.getElementById('select-ecc').value = Sabrina.ecc;
       document.getElementById('slider-blocksize').value = Sabrina.blockSize;
       document.getElementById('lbl-blocksize').textContent = Sabrina.blockSize + 'B';
+      const autoStopEl = document.getElementById('select-autostop');
+      if (autoStopEl) autoStopEl.value = Sabrina.autoStopLoops;
     }
 
     document.getElementById('slider-fps').addEventListener('input', (e) => {
@@ -1867,6 +1902,13 @@ Minimum version required to store current data is: `+o+`.
       document.getElementById('lbl-blocksize').textContent = Sabrina.blockSize + 'B';
       updateTimeEstimate();
     });
+
+    const selectAutoStop = document.getElementById('select-autostop');
+    if (selectAutoStop) {
+      selectAutoStop.addEventListener('change', (e) => {
+        Sabrina.autoStopLoops = parseInt(e.target.value);
+      });
+    }
 
     // --- FILE PICKER & PIPELINE ---
     const dropzone = document.getElementById('dropzone');
@@ -2021,6 +2063,7 @@ Minimum version required to store current data is: `+o+`.
       Sabrina.senderStartTime = performance.now();
       Sabrina.senderRunning = true;
       Sabrina.senderPaused = false;
+      document.getElementById('btn-pause-send').textContent = '⏸️ Pause';
       Sabrina.ringBuffer = [];
       
       requestWakeLock();
@@ -2235,6 +2278,14 @@ Minimum version required to store current data is: `+o+`.
       const loop = Math.floor(Sabrina.senderPacketsEmitted / Math.max(1, Sabrina.senderTotalBlocks)) + 1;
       document.getElementById('hud-loop-count').textContent = 'Loop ' + loop;
       
+      // Auto-stop stream if configured
+      if (Sabrina.autoStopLoops > 0 && loop > Sabrina.autoStopLoops) {
+        Sabrina.senderPaused = true;
+        document.getElementById('btn-pause-send').textContent = '▶️ Resume';
+        document.getElementById('hud-est-remaining').textContent = 'Completed (' + Sabrina.autoStopLoops + ' loops)';
+        return;
+      }
+
       const totalEstimatedPackets = Math.ceil(Sabrina.senderTotalBlocks * 1.18);
       const remainingPackets = Math.max(0, totalEstimatedPackets - Sabrina.senderPacketsEmitted);
       let gridFactor = (Sabrina.grid === '2x2') ? 4 : (Sabrina.grid === '3x3') ? 9 : 1;
@@ -2350,10 +2401,65 @@ Minimum version required to store current data is: `+o+`.
       }
       
       // Verified!
+      // TERMINATION POINT: Immediately deactivate camera & scanner loop
+      stopReceiverCamera();
+
+      // Audio & Haptic confirmation
+      playSuccessChime();
+      if ('vibrate' in navigator) {
+        try { navigator.vibrate([100, 50, 100]); } catch (e) {}
+      }
+
+      // Lock progress indicators at 100%
+      document.getElementById('recv-progress-bar').style.width = '100%';
+      document.getElementById('recv-progress-percent').textContent = '100%';
+      document.getElementById('recv-progress-text').textContent = 'Transfer Complete & Verified (100%)';
+
+      // Visual success indicators
+      const successOverlay = document.getElementById('viewfinder-success-overlay');
+      if (successOverlay) successOverlay.style.display = 'flex';
+      const reticle = document.getElementById('reticle-frame');
+      if (reticle) reticle.style.display = 'none';
+
       Sabrina.reconstructedPlaintext = plaintext;
       document.getElementById('recv-verified-sha').textContent = computedSha;
-      document.getElementById('recv-complete-card').style.display = 'block';
-      setDiag("info", "Transfer Complete! Hash verified 100% byte-exact.");
+      const completeCard = document.getElementById('recv-complete-card');
+      completeCard.style.display = 'block';
+      completeCard.scrollIntoView({ behavior: 'smooth' });
+      setDiag("info", "🎉 Transfer Complete! Hash verified 100% byte-exact. Camera stopped.");
+    }
+
+    function playSuccessChime() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const now = ctx.currentTime;
+        
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(659.25, now);
+        gain1.gain.setValueAtTime(0.15, now);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.25);
+
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(880.0, now + 0.12);
+        gain2.gain.setValueAtTime(0.18, now + 0.12);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(now + 0.12);
+        osc2.stop(now + 0.45);
+        
+        setTimeout(() => ctx.close().catch(() => {}), 600);
+      } catch (e) {}
     }
 
     document.getElementById('btn-download-file').addEventListener('click', () => {
@@ -2362,6 +2468,35 @@ Minimum version required to store current data is: `+o+`.
     document.getElementById('btn-save-wipe').addEventListener('click', () => {
       downloadReconstructedFile(true);
     });
+
+    const btnScanAnother = document.getElementById('btn-scan-another');
+    if (btnScanAnother) {
+      btnScanAnother.addEventListener('click', async () => {
+        document.getElementById('recv-complete-card').style.display = 'none';
+        const successOverlay = document.getElementById('viewfinder-success-overlay');
+        if (successOverlay) successOverlay.style.display = 'none';
+        const reticle = document.getElementById('reticle-frame');
+        if (reticle) reticle.style.display = 'block';
+
+        document.getElementById('recv-progress-bar').style.width = '0%';
+        document.getElementById('recv-progress-percent').textContent = '0%';
+        document.getElementById('recv-progress-text').textContent = 'Waiting for sender stream...';
+        document.getElementById('hud-recv-solved').textContent = '0 / 0';
+        document.getElementById('hud-recv-accepted').textContent = '0';
+        document.getElementById('hud-recv-duplicates').textContent = '0';
+        document.getElementById('hud-recv-rejected').textContent = '0';
+        document.getElementById('recv-meta-card').style.display = 'none';
+
+        Sabrina.detectedMetadata = null;
+        Sabrina.reconstructedPlaintext = null;
+
+        if (Sabrina.worker) {
+          Sabrina.worker.postMessage({ action: 'reset' });
+        }
+
+        await startReceiverCamera();
+      });
+    }
 
     function downloadReconstructedFile(wipeAfter) {
       if (!Sabrina.reconstructedPlaintext || !Sabrina.detectedMetadata) return;
