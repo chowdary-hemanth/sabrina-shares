@@ -2065,6 +2065,8 @@ Minimum version required to store current data is: `+o+`.
       Sabrina.senderPaused = false;
       document.getElementById('btn-pause-send').textContent = '⏸️ Pause';
       Sabrina.ringBuffer = [];
+      senderSeedCounter = 1;
+      framesSinceMetadata = 999;
       
       requestWakeLock();
       
@@ -2108,12 +2110,14 @@ Minimum version required to store current data is: `+o+`.
 
     // Generate next packet (Metadata or Fountain Data)
     let senderSeedCounter = 1;
-    let framesSinceMetadata = 0;
+    let framesSinceMetadata = 999;
 
     function generateNextPacket() {
-      // Send metadata once every ~1 second (every Math.max(1, fps) frames)
+      // Small files (<= 4 blocks) alternate metadata every 2 frames
+      // Larger files send metadata on Frame 1, then once every ~1 second (every Math.max(1, Sabrina.fps) frames)
+      const metaInterval = (Sabrina.senderTotalBlocks <= 4) ? 2 : Math.max(1, Sabrina.fps);
       framesSinceMetadata++;
-      if (framesSinceMetadata >= Math.max(1, Sabrina.fps)) {
+      if (framesSinceMetadata >= metaInterval) {
         framesSinceMetadata = 0;
         const shaBytes = new Uint8Array(32);
         for (let i = 0; i < 32; i++) shaBytes[i] = parseInt(Sabrina.plaintextShaHex.substr(i * 2, 2), 16);
@@ -2275,7 +2279,9 @@ Minimum version required to store current data is: `+o+`.
       document.getElementById('hud-effective-rate').textContent = rateKb.toFixed(1) + ' KB/s';
       document.getElementById('hud-elapsed-time').textContent = formatTime(elapsedSec);
       
-      const loop = Math.floor(Sabrina.senderPacketsEmitted / Math.max(1, Sabrina.senderTotalBlocks)) + 1;
+      // A loop allows sufficient duration for camera alignment and focus (minimum 24 frames)
+      const packetsPerLoop = Math.max(24, Math.ceil(Sabrina.senderTotalBlocks * 1.25));
+      const loop = Math.floor(Sabrina.senderPacketsEmitted / packetsPerLoop) + 1;
       document.getElementById('hud-loop-count').textContent = 'Loop ' + loop;
       
       // Auto-stop stream if configured
@@ -2324,7 +2330,12 @@ Minimum version required to store current data is: `+o+`.
           const pct = Math.min(100, Math.floor((solved / total) * 100));
           document.getElementById('recv-progress-bar').style.width = pct + '%';
           document.getElementById('recv-progress-percent').textContent = pct + '%';
-          document.getElementById('recv-progress-text').textContent = "Decoding Fountain (" + solved + " / " + total + " blocks)";
+          if (solved === total && !Sabrina.detectedMetadata) {
+            document.getElementById('recv-progress-text').textContent = "Blocks decoded (100%) - Waiting for metadata packet...";
+            setDiag("info", "All blocks received! Waiting for final metadata frame from sender...");
+          } else {
+            document.getElementById('recv-progress-text').textContent = "Decoding Fountain (" + solved + " / " + total + " blocks)";
+          }
         }
         
         if (type === 'status_message') {
@@ -2338,95 +2349,101 @@ Minimum version required to store current data is: `+o+`.
     }
 
     async function handleReceivedData(rawData, meta) {
-      setDiag("info", "Reconstructing payload...");
-      let plaintext = rawData;
-      
-      // Handle Decryption if encrypted
-      if (meta.isEncrypted) {
-        // Prompt for Passphrase
-        const modal = document.getElementById('decrypt-modal');
-        modal.style.display = 'flex';
+      try {
+        setDiag("info", "Reconstructing payload...");
+        let plaintext = rawData;
         
-        const passphrase = await new Promise((resolve) => {
-          document.getElementById('btn-submit-decrypt').onclick = () => {
-            const p = document.getElementById('recv-passphrase-input').value;
-            modal.style.display = 'none';
-            resolve(p);
-          };
-          document.getElementById('btn-cancel-decrypt').onclick = () => {
-            modal.style.display = 'none';
-            resolve(null);
-          };
-        });
+        // Handle Decryption if encrypted
+        if (meta.isEncrypted) {
+          // Prompt for Passphrase
+          const modal = document.getElementById('decrypt-modal');
+          modal.style.display = 'flex';
+          
+          const passphrase = await new Promise((resolve) => {
+            document.getElementById('btn-submit-decrypt').onclick = () => {
+              const p = document.getElementById('recv-passphrase-input').value;
+              modal.style.display = 'none';
+              resolve(p);
+            };
+            document.getElementById('btn-cancel-decrypt').onclick = () => {
+              modal.style.display = 'none';
+              resolve(null);
+            };
+          });
+          
+          if (!passphrase) {
+            setDiag("warning", "Decryption cancelled by user. Re-enter passphrase or wipe session.");
+            return;
+          }
+          
+          try {
+            const baseKey = await crypto.subtle.importKey('raw', new TextEncoder().encode(passphrase), 'PBKDF2', false, ['deriveKey']);
+            const decKey = await crypto.subtle.deriveKey(
+              { name: 'PBKDF2', salt: meta.salt, iterations: 200000, hash: 'SHA-256' },
+              baseKey, { name: 'AES-GCM', length: 256 }, false, ['decrypt']
+            );
+            const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: meta.iv }, decKey, rawData);
+            plaintext = new Uint8Array(decrypted);
+          } catch (e) {
+            alert("Decryption failed! Incorrect passphrase or corrupted payload.");
+            setDiag("warning", "Decryption failed: Incorrect passphrase.");
+            return;
+          }
+        }
         
-        if (!passphrase) {
-          setDiag("warning", "Decryption cancelled by user. Re-enter passphrase or wipe session.");
+        // Handle Decompression if compressed
+        if (meta.isCompressed) {
+          try {
+            plaintext = window.fflate.inflateSync(plaintext);
+          } catch (e) {
+            alert("Decompression failed! Corrupted data payload.");
+            return;
+          }
+        }
+        
+        // Verify SHA-256 Cryptographic Checksum
+        const hashBuffer = await crypto.subtle.digest('SHA-256', plaintext);
+        const computedSha = await bufferToHex(hashBuffer);
+        const expectedSha = await bufferToHex(meta.sha256);
+        
+        if (computedSha !== expectedSha) {
+          setDiag("warning", "SHA-256 verification failed! Corrupted payload.");
+          alert("Integrity check failed: Computed hash (" + computedSha.slice(0, 12) + ") does not match sender signature.");
           return;
         }
         
-        try {
-          const baseKey = await crypto.subtle.importKey('raw', new TextEncoder().encode(passphrase), 'PBKDF2', false, ['deriveKey']);
-          const decKey = await crypto.subtle.deriveKey(
-            { name: 'PBKDF2', salt: meta.salt, iterations: 200000, hash: 'SHA-256' },
-            baseKey, { name: 'AES-GCM', length: 256 }, false, ['decrypt']
-          );
-          const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: meta.iv }, decKey, rawData);
-          plaintext = new Uint8Array(decrypted);
-        } catch (e) {
-          alert("Decryption failed! Incorrect passphrase or corrupted payload.");
-          setDiag("warning", "Decryption failed: Incorrect passphrase.");
-          return;
+        // Verified!
+        // TERMINATION POINT: Immediately deactivate camera & scanner loop
+        stopReceiverCamera();
+
+        // Audio & Haptic confirmation
+        playSuccessChime();
+        if ('vibrate' in navigator) {
+          try { navigator.vibrate([100, 50, 100]); } catch (e) {}
         }
-      }
-      
-      // Handle Decompression if compressed
-      if (meta.isCompressed) {
-        try {
-          plaintext = window.fflate.inflateSync(plaintext);
-        } catch (e) {
-          alert("Decompression failed! Corrupted data payload.");
-          return;
-        }
-      }
-      
-      // Verify SHA-256 Cryptographic Checksum
-      const hashBuffer = await crypto.subtle.digest('SHA-256', plaintext);
-      const computedSha = await bufferToHex(hashBuffer);
-      const expectedSha = await bufferToHex(meta.sha256);
-      
-      if (computedSha !== expectedSha) {
-        setDiag("warning", "SHA-256 verification failed! Corrupted payload.");
-        alert("Integrity check failed: Computed hash (" + computedSha.slice(0, 12) + ") does not match sender signature.");
-        return;
-      }
-      
-      // Verified!
-      // TERMINATION POINT: Immediately deactivate camera & scanner loop
-      stopReceiverCamera();
 
-      // Audio & Haptic confirmation
-      playSuccessChime();
-      if ('vibrate' in navigator) {
-        try { navigator.vibrate([100, 50, 100]); } catch (e) {}
+        // Lock progress indicators at 100%
+        document.getElementById('recv-progress-bar').style.width = '100%';
+        document.getElementById('recv-progress-percent').textContent = '100%';
+        document.getElementById('recv-progress-text').textContent = 'Transfer Complete & Verified (100%)';
+
+        // Visual success indicators
+        const successOverlay = document.getElementById('viewfinder-success-overlay');
+        if (successOverlay) successOverlay.style.display = 'flex';
+        const reticle = document.getElementById('reticle-frame');
+        if (reticle) reticle.style.display = 'none';
+
+        Sabrina.reconstructedPlaintext = plaintext;
+        document.getElementById('recv-verified-sha').textContent = computedSha;
+        const completeCard = document.getElementById('recv-complete-card');
+        completeCard.style.display = 'block';
+        completeCard.scrollIntoView({ behavior: 'smooth' });
+        setDiag("info", "🎉 Transfer Complete! Hash verified 100% byte-exact. Camera stopped.");
+      } catch (err) {
+        console.error("handleReceivedData error:", err);
+        stopReceiverCamera();
+        setDiag("warning", "Reconstruction error: " + (err ? err.message : "Unknown error"));
       }
-
-      // Lock progress indicators at 100%
-      document.getElementById('recv-progress-bar').style.width = '100%';
-      document.getElementById('recv-progress-percent').textContent = '100%';
-      document.getElementById('recv-progress-text').textContent = 'Transfer Complete & Verified (100%)';
-
-      // Visual success indicators
-      const successOverlay = document.getElementById('viewfinder-success-overlay');
-      if (successOverlay) successOverlay.style.display = 'flex';
-      const reticle = document.getElementById('reticle-frame');
-      if (reticle) reticle.style.display = 'none';
-
-      Sabrina.reconstructedPlaintext = plaintext;
-      document.getElementById('recv-verified-sha').textContent = computedSha;
-      const completeCard = document.getElementById('recv-complete-card');
-      completeCard.style.display = 'block';
-      completeCard.scrollIntoView({ behavior: 'smooth' });
-      setDiag("info", "🎉 Transfer Complete! Hash verified 100% byte-exact. Camera stopped.");
     }
 
     function playSuccessChime() {
@@ -2697,7 +2714,12 @@ Minimum version required to store current data is: `+o+`.
           const pct = Math.min(100, Math.floor((solved / total) * 100));
           document.getElementById('recv-progress-bar').style.width = pct + '%';
           document.getElementById('recv-progress-percent').textContent = pct + '%';
-          document.getElementById('recv-progress-text').textContent = "Decoding Fountain (" + solved + " / " + total + " blocks)";
+          if (solved === total && !Sabrina.detectedMetadata) {
+            document.getElementById('recv-progress-text').textContent = "Blocks decoded (100%) - Waiting for metadata packet...";
+            setDiag("info", "All blocks received! Waiting for final metadata frame from sender...");
+          } else {
+            document.getElementById('recv-progress-text').textContent = "Decoding Fountain (" + solved + " / " + total + " blocks)";
+          }
         }
         
         if (type === 'status_message') {
