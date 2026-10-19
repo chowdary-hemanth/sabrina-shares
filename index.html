@@ -3,31 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <!-- Hard constraint: Strict CSP with zero external network requests -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; manifest-src 'self'; worker-src 'self' blob:; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';">
+  <!-- Hard constraint: Strict CSP with zero external network requests except optional web fonts -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; manifest-src 'self'; worker-src 'self' blob:; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <meta name="theme-color" content="#0b0d14">
+  <meta name="theme-color" content="#0c0d10">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Sabrina">
-  <title>Sabrina Shares // Offline Air-Gapped File Diode</title>
+  <title>Sabrina Shares // Optical Stream Diode</title>
+
+  <!-- Google Fonts: Bitcount Ink and Yarndings 12 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitcount+Ink:wght@400;700&family=Yarndings+12&display=swap">
+
   <style>
+    /* Local offline font fallbacks for air-gapped / offline operation */
+    @font-face {
+      font-family: 'Bitcount Ink';
+      src: url('fonts/bitcount-ink.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Yarndings 12';
+      src: url('fonts/yarndings-12.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
     :root {
-      --bg: #0b0d14;
-      --card-bg: #141724;
-      --card-border: #23283e;
-      --accent: #6366f1;
-      --accent-hover: #4f46e5;
-      --accent-glow: rgba(99, 102, 241, 0.25);
-      --success: #10b981;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --text: #f1f5f9;
-      --text-muted: #94a3b8;
-      --radius: 12px;
-      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      /* Black, Grey, and Creme Theme */
+      --bg: #0c0d10;
+      --card-bg: #14171d;
+      --card-bg-elevated: #1a1e26;
+      --card-border: #282d39;
+      --card-border-light: #3d4556;
+      --accent: #ebd8aa;
+      --accent-hover: #f5eedc;
+      --accent-glow: rgba(235, 216, 170, 0.16);
+      --text: #f5eedc;
+      --text-muted: #b5ac98;
+      --text-dim: #7d7768;
+      --success: #a3be8c;
+      --warning: #ebcb8b;
+      --danger: #bf616a;
+      --radius: 6px;
+      --font-family: 'Bitcount Ink', monospace, 'Courier New', monospace;
+      --font-mono: 'Bitcount Ink', monospace, ui-monospace, monospace;
     }
 
     * {
@@ -40,16 +67,31 @@
     body {
       background-color: var(--bg);
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: var(--font-family);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       overflow-x: hidden;
+      letter-spacing: 0.2px;
+    }
+
+    button, input, select, textarea {
+      font-family: var(--font-family);
+    }
+
+    /* Yarndings 12 Symbol Helper */
+    .yd {
+      font-family: 'Yarndings 12', monospace !important;
+      font-size: 1.15em;
+      line-height: 1;
+      display: inline-block;
+      vertical-align: middle;
+      user-select: none;
     }
 
     /* Top Navigation & Status Bar */
     header {
-      background: rgba(20, 23, 36, 0.85);
+      background: rgba(20, 23, 29, 0.94);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--card-border);
       padding: 12px 20px;
@@ -65,33 +107,36 @@
       display: flex;
       align-items: center;
       gap: 12px;
+      cursor: pointer;
     }
 
-    .brand-icon {
-      width: 32px;
-      height: 32px;
-      background: linear-gradient(135deg, #6366f1, #a855f7);
+    .brand-logo-img {
+      width: 40px;
+      height: 40px;
       border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
-      font-size: 18px;
-      color: #fff;
-      box-shadow: 0 0 15px var(--accent-glow);
+      object-fit: cover;
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 0 12px rgba(235, 216, 170, 0.22);
+      transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+      display: block;
+    }
+
+    .brand-logo-img:hover {
+      transform: scale(1.08);
     }
 
     .brand-title {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 700;
-      letter-spacing: -0.5px;
+      letter-spacing: 1px;
+      color: var(--text);
     }
 
     .brand-subtitle {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 1.2px;
     }
 
     .header-actions {
@@ -100,107 +145,94 @@
       gap: 10px;
     }
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-    }
-
-    .badge-secure {
-      background: rgba(16, 185, 129, 0.15);
-      color: var(--success);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-
-    .badge-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: currentColor;
-      box-shadow: 0 0 8px currentColor;
-    }
-
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 10px 18px;
+      padding: 9px 16px;
       border-radius: var(--radius);
-      font-size: 14px;
-      font-weight: 600;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
       cursor: pointer;
-      border: none;
-      transition: all 0.15s ease;
+      border: 1px solid transparent;
+      transition: transform 0.16s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
       user-select: none;
     }
 
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
     .btn:active {
-      transform: scale(0.98);
+      transform: translateY(1px);
     }
 
     .btn-primary {
       background: var(--accent);
-      color: #fff;
-      box-shadow: 0 4px 14px var(--accent-glow);
+      color: #0c0d10;
+      border-color: var(--accent);
+      box-shadow: 0 3px 12px var(--accent-glow);
     }
     .btn-primary:hover {
       background: var(--accent-hover);
+      border-color: var(--accent-hover);
+      box-shadow: 0 5px 16px rgba(235, 216, 170, 0.3);
     }
 
     .btn-danger {
-      background: rgba(239, 68, 68, 0.15);
-      color: #f87171;
-      border: 1px solid rgba(239, 68, 68, 0.3);
+      background: rgba(191, 97, 106, 0.12);
+      color: var(--danger);
+      border-color: rgba(191, 97, 106, 0.35);
     }
     .btn-danger:hover {
-      background: rgba(239, 68, 68, 0.25);
+      background: rgba(191, 97, 106, 0.22);
+      border-color: var(--danger);
     }
 
     .btn-secondary {
-      background: var(--card-border);
+      background: #191c24;
       color: var(--text);
+      border-color: var(--card-border);
     }
     .btn-secondary:hover {
-      background: #333a56;
+      background: #232733;
+      border-color: var(--card-border-light);
     }
 
     .btn-large {
-      padding: 14px 24px;
-      font-size: 16px;
-      border-radius: 14px;
+      padding: 13px 22px;
+      font-size: 14px;
+      border-radius: var(--radius);
       width: 100%;
     }
 
     /* Tabs Navigation */
     .nav-tabs {
       display: flex;
-      background: #10121d;
+      background: #111319;
       border-bottom: 1px solid var(--card-border);
       padding: 0 20px;
       overflow-x: auto;
     }
 
     .tab-btn {
-      padding: 14px 20px;
+      padding: 13px 18px;
       background: none;
       border: none;
       color: var(--text-muted);
-      font-size: 14px;
-      font-weight: 600;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
       cursor: pointer;
       position: relative;
       display: flex;
       align-items: center;
       gap: 8px;
       white-space: nowrap;
-      transition: color 0.15s ease;
+      transition: color 0.16s ease;
     }
 
     .tab-btn:hover {
@@ -208,7 +240,7 @@
     }
 
     .tab-btn.active {
-      color: #fff;
+      color: var(--accent);
     }
 
     .tab-btn.active::after {
@@ -220,21 +252,21 @@
       height: 3px;
       background: var(--accent);
       border-radius: 3px 3px 0 0;
-      box-shadow: 0 -2px 8px var(--accent);
+      box-shadow: 0 -2px 8px var(--accent-glow);
     }
 
     /* Main Container */
     main {
       flex: 1;
       padding: 20px;
-      max-width: 900px;
+      max-width: 920px;
       margin: 0 auto;
       width: 100%;
     }
 
     .tab-pane {
       display: none;
-      animation: fadeIn 0.2s ease;
+      animation: fadeIn 0.22s ease-out;
     }
 
     .tab-pane.active {
@@ -242,7 +274,7 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
+      from { opacity: 0; transform: translateY(6px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
@@ -253,16 +285,118 @@
       border-radius: var(--radius);
       padding: 20px;
       margin-bottom: 20px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     }
 
     .card-title {
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 700;
       margin-bottom: 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      letter-spacing: 0.8px;
+      color: var(--accent);
+    }
+
+    /* Action Cards Grid on Landing Page */
+    .action-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin: 16px 0 24px 0;
+    }
+
+    .action-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+    }
+
+    .action-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 16px var(--accent-glow);
+    }
+
+    .action-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .action-card-badge {
+      font-size: 10px;
+      color: var(--accent);
+      letter-spacing: 1px;
+    }
+
+    .action-card-icon {
+      font-size: 24px;
+      color: var(--accent);
+    }
+
+    .action-card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .action-card-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 18px;
+      flex: 1;
+    }
+
+    /* Uniqueness & Features Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .feature-item {
+      background: #0f1218;
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 16px;
+      transition: border-color 0.16s ease;
+    }
+
+    .feature-item:hover {
+      border-color: var(--card-border-light);
+    }
+
+    .feature-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .feature-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .ascii-art {
+      font-family: var(--font-mono);
+      white-space: pre;
+      user-select: text;
     }
 
     /* Drag and Drop Zone */
@@ -272,25 +406,26 @@
       padding: 36px 20px;
       text-align: center;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: border-color 0.2s ease, background 0.2s ease;
       background: rgba(255, 255, 255, 0.01);
     }
 
     .dropzone:hover, .dropzone.dragover {
       border-color: var(--accent);
-      background: rgba(99, 102, 241, 0.05);
+      background: rgba(235, 216, 170, 0.04);
     }
 
     .dropzone-icon {
-      font-size: 40px;
+      font-size: 36px;
       margin-bottom: 12px;
       color: var(--accent);
     }
 
     .dropzone-text {
       font-size: 15px;
-      font-weight: 600;
+      font-weight: 700;
       margin-bottom: 6px;
+      letter-spacing: 0.5px;
     }
 
     .dropzone-hint {
@@ -307,23 +442,23 @@
     }
 
     .info-item {
-      background: #0f121e;
+      background: #0e1017;
       border: 1px solid var(--card-border);
       padding: 10px 14px;
-      border-radius: 8px;
+      border-radius: var(--radius);
     }
 
     .info-label {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.8px;
       margin-bottom: 4px;
     }
 
     .info-val {
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 700;
       font-family: var(--font-mono);
       word-break: break-all;
     }
@@ -335,22 +470,23 @@
 
     .form-label {
       display: block;
-      font-size: 13px;
-      font-weight: 600;
+      font-size: 12px;
+      font-weight: 700;
       margin-bottom: 6px;
       color: var(--text);
+      letter-spacing: 0.4px;
     }
 
     .form-control {
       width: 100%;
-      background: #0e101a;
+      background: #0e1017;
       border: 1px solid var(--card-border);
       color: var(--text);
-      padding: 12px 14px;
-      border-radius: 8px;
-      font-size: 14px;
+      padding: 10px 14px;
+      border-radius: var(--radius);
+      font-size: 13px;
       outline: none;
-      transition: border-color 0.15s ease;
+      transition: border-color 0.16s ease;
     }
 
     .form-control:focus {
@@ -365,45 +501,48 @@
     }
 
     .preset-btn {
-      background: #0e101a;
+      background: #0e1017;
       border: 1px solid var(--card-border);
-      border-radius: 10px;
+      border-radius: var(--radius);
       padding: 12px;
       text-align: left;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: border-color 0.16s ease, background 0.16s ease;
       color: var(--text);
     }
 
     .preset-btn:hover {
-      border-color: #3b4263;
+      border-color: var(--card-border-light);
     }
 
     .preset-btn.active {
       border-color: var(--accent);
-      background: rgba(99, 102, 241, 0.1);
+      background: rgba(235, 216, 170, 0.08);
     }
 
     .preset-name {
       font-weight: 700;
       font-size: 13px;
       margin-bottom: 4px;
+      color: var(--accent);
+      letter-spacing: 0.5px;
     }
 
     .preset-desc {
       font-size: 11px;
       color: var(--text-muted);
-      line-height: 1.3;
+      line-height: 1.35;
     }
 
     /* Custom Controls Details */
     details summary {
       cursor: pointer;
-      font-size: 13px;
+      font-size: 12px;
       color: var(--accent);
-      font-weight: 600;
+      font-weight: 700;
       padding: 8px 0;
       user-select: none;
+      letter-spacing: 0.5px;
     }
 
     .slider-row {
@@ -411,7 +550,7 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 12px;
-      font-size: 13px;
+      font-size: 12px;
     }
 
     .slider-row input[type="range"] {
@@ -422,9 +561,9 @@
 
     /* Estimate Banner */
     .estimate-banner {
-      background: rgba(99, 102, 241, 0.08);
-      border: 1px solid rgba(99, 102, 241, 0.2);
-      border-radius: 10px;
+      background: rgba(235, 216, 170, 0.06);
+      border: 1px solid rgba(235, 216, 170, 0.22);
+      border-radius: var(--radius);
       padding: 14px 16px;
       margin: 16px 0;
       display: flex;
@@ -435,21 +574,23 @@
     }
 
     .estimate-title {
-      font-size: 13px;
+      font-size: 11px;
       color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
     }
 
     .estimate-val {
       font-size: 16px;
       font-weight: 700;
-      color: #fff;
+      color: var(--accent);
       font-family: var(--font-mono);
     }
 
     .estimate-warning {
-      background: rgba(245, 158, 11, 0.12);
-      border-color: rgba(245, 158, 11, 0.3);
-      color: #fbbf24;
+      background: rgba(235, 203, 139, 0.12);
+      border-color: rgba(235, 203, 139, 0.35);
+      color: var(--warning);
     }
 
     /* Active Transmission Display */
@@ -462,8 +603,8 @@
     .canvas-container {
       background: #ffffff;
       padding: 24px;
-      border-radius: 16px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -505,9 +646,9 @@
     .fullscreen-mode .stream-hud {
       position: absolute;
       bottom: 20px;
-      background: rgba(0, 0, 0, 0.85);
-      border: 1px solid #333;
-      border-radius: 12px;
+      background: rgba(12, 13, 16, 0.92);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
       padding: 8px 18px;
     }
 
@@ -515,13 +656,14 @@
       position: absolute;
       top: 20px;
       right: 20px;
-      background: rgba(0, 0, 0, 0.7);
-      color: #fff;
-      border: 1px solid #444;
+      background: rgba(12, 13, 16, 0.85);
+      color: var(--text);
+      border: 1px solid var(--card-border);
       padding: 8px 14px;
-      border-radius: 8px;
+      border-radius: var(--radius);
       cursor: pointer;
-      font-size: 13px;
+      font-size: 12px;
+      font-weight: 700;
     }
 
     /* HUD Stats Bar */
@@ -531,10 +673,10 @@
       justify-content: center;
       gap: 16px;
       margin: 16px 0;
-      background: #0f121e;
+      background: #0e1017;
       border: 1px solid var(--card-border);
       padding: 12px 20px;
-      border-radius: 12px;
+      border-radius: var(--radius);
       width: 100%;
     }
 
@@ -543,17 +685,18 @@
     }
 
     .hud-stat-val {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
       font-family: var(--font-mono);
-      color: #fff;
+      color: var(--accent);
     }
 
     .hud-stat-lbl {
-      font-size: 10px;
+      font-size: 9px;
       color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.8px;
+      margin-top: 2px;
     }
 
     /* Receiver Viewfinder */
@@ -590,10 +733,10 @@
       position: absolute;
       width: 70%;
       height: 70%;
-      border: 2px dashed rgba(99, 102, 241, 0.5);
-      border-radius: 16px;
+      border: 2px dashed rgba(235, 216, 170, 0.5);
+      border-radius: var(--radius);
       pointer-events: none;
-      box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.5);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -615,10 +758,10 @@
     /* Progress Bar */
     .progress-bar-wrap {
       width: 100%;
-      height: 12px;
-      background: #0f121e;
+      height: 10px;
+      background: #0e1017;
       border: 1px solid var(--card-border);
-      border-radius: 6px;
+      border-radius: 4px;
       overflow: hidden;
       margin: 12px 0 6px 0;
       position: relative;
@@ -627,35 +770,35 @@
     .progress-bar-fill {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, #6366f1, #10b981);
-      border-radius: 5px;
+      background: linear-gradient(90deg, var(--card-border-light), var(--accent));
+      border-radius: 3px;
       transition: width 0.1s ease;
-      box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+      box-shadow: 0 0 8px var(--accent-glow);
     }
 
     /* Diagnostics Banner */
     .diag-banner {
-      background: #101322;
+      background: #0e1017;
       border: 1px solid var(--card-border);
-      border-radius: 10px;
+      border-radius: var(--radius);
       padding: 10px 16px;
       margin-bottom: 16px;
-      font-size: 13px;
+      font-size: 12px;
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
     .diag-banner.warning {
-      background: rgba(245, 158, 11, 0.1);
-      border-color: rgba(245, 158, 11, 0.3);
-      color: #fbbf24;
+      background: rgba(235, 203, 139, 0.1);
+      border-color: rgba(235, 203, 139, 0.3);
+      color: var(--warning);
     }
 
     .diag-banner.info {
-      background: rgba(99, 102, 241, 0.1);
-      border-color: rgba(99, 102, 241, 0.3);
-      color: #a5b4fc;
+      background: rgba(235, 216, 170, 0.08);
+      border-color: rgba(235, 216, 170, 0.25);
+      color: var(--text);
     }
 
     /* Passphrase Modal */
@@ -665,7 +808,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.85);
+      background: rgba(0, 0, 0, 0.88);
       backdrop-filter: blur(8px);
       display: none;
       align-items: center;
@@ -676,27 +819,27 @@
 
     .modal-card {
       background: var(--card-bg);
-      border: 1px solid var(--card-border);
+      border: 1px solid var(--card-border-light);
       border-radius: var(--radius);
       padding: 24px;
       max-width: 440px;
       width: 100%;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
     }
 
     /* Test Terminal Output */
     .test-terminal {
-      background: #080910;
+      background: #08090d;
       border: 1px solid var(--card-border);
-      border-radius: 10px;
+      border-radius: var(--radius);
       padding: 14px;
       font-family: var(--font-mono);
-      font-size: 12px;
+      font-size: 11px;
       line-height: 1.5;
       max-height: 320px;
       overflow-y: auto;
       white-space: pre-wrap;
-      color: #a5b4fc;
+      color: var(--text-muted);
       margin-top: 14px;
     }
 
@@ -705,63 +848,252 @@
       header { padding: 10px 14px; }
       main { padding: 14px 10px; }
       .nav-tabs { padding: 0 10px; }
-      .tab-btn { padding: 12px 14px; font-size: 13px; }
+      .tab-btn { padding: 12px 12px; font-size: 12px; }
       .canvas-container { padding: 12px; }
       .stream-hud { gap: 10px; padding: 10px; }
-      .hud-stat-val { font-size: 14px; }
+      .hud-stat-val { font-size: 13px; }
+      .ascii-art { font-size: 9px; }
     }
   </style>
 </head>
 <body>
 
   <!-- PWA Update Notification Banner -->
-  <div id="pwa-update-banner" style="display: none; background: #4f46e5; color: #fff; padding: 10px 16px; font-size: 13px; font-weight: 600; text-align: center; position: sticky; top: 0; z-index: 200; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
-    <span>🔄 An update to Sabrina Shares is ready.</span>
-    <button id="btn-reload-pwa" class="btn" style="margin-left: 12px; background: #fff; color: #4f46e5; padding: 4px 12px; font-size: 12px; border-radius: 6px;">Reload to Update</button>
+  <div id="pwa-update-banner" style="display: none; background: #1f2430; border-bottom: 1px solid var(--accent); color: var(--text); padding: 10px 16px; font-size: 13px; font-weight: 700; text-align: center; position: sticky; top: 0; z-index: 200;">
+    <span><span class="yd">U</span> [UPDATE] An update to Sabrina Shares is ready.</span>
+    <button id="btn-reload-pwa" class="btn btn-primary" style="margin-left: 14px; padding: 4px 12px; font-size: 11px;">[ RELOAD TO UPDATE ]</button>
   </div>
 
   <!-- Top Status Bar -->
   <header>
-    <div class="brand">
-      <div class="brand-icon">S</div>
+    <div class="brand" id="brand-home-link" title="Sabrina Shares Home">
+      <img src="icons/logo.jpg" alt="Logo" class="brand-logo-img">
       <div>
-        <div class="brand-title">Sabrina Shares</div>
-        <div class="brand-subtitle">Air-Gapped Optical Diode</div>
+        <div class="brand-title">SABRINA SHARES</div>
+        <div class="brand-subtitle">OPTICAL STREAM DIODE // OFF-GRID RECONSTRUCTION</div>
       </div>
     </div>
     <div class="header-actions">
       <button class="btn btn-secondary" id="btn-install-pwa" style="display: none; padding: 6px 12px; font-size: 12px;" title="Install as Offline PWA">
-        <span>📲</span> Install
+        <span class="yd">i</span> [INSTALL]
       </button>
-      <div class="badge badge-secure" title="Strict CSP, Zero Network, In-Memory Only">
-        <span class="badge-dot"></span>
-        AIR-GAPPED
-      </div>
       <button class="btn btn-danger" id="btn-wipe" title="Zero all memory buffers and reload">
-        <span>🧹</span> Wipe Session
+        <span class="yd">w</span> [WIPE SESSION]
       </button>
     </div>
   </header>
 
   <!-- Mode Tabs -->
   <nav class="nav-tabs">
-    <button class="tab-btn active" data-tab="tab-send">📤 Send File</button>
-    <button class="tab-btn" data-tab="tab-receive">📥 Receive File</button>
-    <button class="tab-btn" data-tab="tab-loopback">🔄 Loopback & Tests</button>
+    <button class="tab-btn active" data-tab="tab-landing"><span class="yd">*</span> [ OVERVIEW ]</button>
+    <button class="tab-btn" data-tab="tab-send"><span class="yd">S</span> [ SEND ]</button>
+    <button class="tab-btn" data-tab="tab-receive"><span class="yd">R</span> [ RECEIVE ]</button>
+    <button class="tab-btn" data-tab="tab-loopback"><span class="yd">T</span> [ SIMULATE ]</button>
   </nav>
 
   <!-- Main Viewports -->
   <main>
+    <!-- ==================== LANDING / OVERVIEW TAB ==================== -->
+    <div class="tab-pane active" id="tab-landing">
+      <!-- Hero ASCII Banner -->
+      <div class="card" style="text-align: center; border-color: var(--card-border-light);">
+        <pre class="ascii-art" style="color: var(--accent); font-size: 11px; line-height: 1.25; overflow-x: auto; margin: 0 auto; display: inline-block; text-align: left;">
++--------------------------------------------------------------------------+
+|  ____    _    ____  ____  ___ _   _    _      ____  _   _    _    ____  _____|
+| / ___|  / \  | __ )|  _ \|_ _| \ | |  / \    / ___|| | | |  / \  |  _ \| ____|
+| \___ \ / _ \ |  _ \| |_) || ||  \| | / _ \   \___ \| |_| | / _ \ | |_) |  _|  |
+|  ___) / ___ \| |_) |  _ &lt; | || |\  |/ ___ \   ___) |  _  |/ ___ \|  _ &lt;| |___ |
+| |____/_/   \_\____/|_| \_\___|_| \_/_/   \_\ |____/|_| |_/_/   \_\_| \_\_____|
+|                                                                          |
+|       OPTICAL TRANSMISSION DIODE // ZERO PERSISTENCE RAM HEAP            |
++--------------------------------------------------------------------------+
+        </pre>
+        <div style="margin-top: 16px; font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: 0.5px;">
+          Air-Gapped Screen-to-Camera Optical File Transfer
+        </div>
+        <p style="margin: 8px auto 0 auto; max-width: 680px; font-size: 12px; color: var(--text-muted); line-height: 1.6;">
+          Sabrina Shares transports files up to 10 MB across physically isolated devices using a high-frequency cycling stream of fountain-coded QR frames. Completely unidirectional (optical diode). Zero network packets, zero Bluetooth, zero pairing, zero server telemetry, and zero persistent storage.
+        </p>
+      </div>
+
+      <!-- 3 Primary Action Cards -->
+      <div class="card-title" style="margin-top: 24px; margin-bottom: 12px;">
+        <span>// PRIMARY OPERATIONS</span>
+        <span style="font-size: 11px; color: var(--text-muted); font-weight: 400;">SELECT MODE TO BEGIN</span>
+      </div>
+
+      <div class="action-cards-grid">
+        <!-- Send Card -->
+        <div class="action-card" id="landing-card-send">
+          <div class="action-card-header">
+            <span class="action-card-badge">[ MODE: 01 ]</span>
+            <span class="yd action-card-icon">S</span>
+          </div>
+          <div class="action-card-title">SEND PAYLOAD</div>
+          <p class="action-card-desc">
+            Select any file up to 10 MB. Encodes with optional Deflate compression, client-side AES-256-GCM encryption, Luby Transform Soliton fountain codes, and streams dynamic QR bursts.
+          </p>
+          <button class="btn btn-primary" id="landing-btn-send" style="width: 100%; margin-top: auto;">
+            [ TRANSMIT FILE ] &rarr;
+          </button>
+        </div>
+
+        <!-- Receive Card -->
+        <div class="action-card" id="landing-card-receive">
+          <div class="action-card-header">
+            <span class="action-card-badge">[ MODE: 02 ]</span>
+            <span class="yd action-card-icon">R</span>
+          </div>
+          <div class="action-card-title">RECEIVE PAYLOAD</div>
+          <p class="action-card-desc">
+            Point camera at the transmitting display. The Web Worker peeling engine decodes droplets on the fly, solves missing frames, verifies SHA-256, and terminates scanning automatically.
+          </p>
+          <button class="btn btn-primary" id="landing-btn-receive" style="width: 100%; margin-top: auto;">
+            [ SCAN &amp; DECODE ] &rarr;
+          </button>
+        </div>
+
+        <!-- Simulate / Test Card -->
+        <div class="action-card" id="landing-card-test">
+          <div class="action-card-header">
+            <span class="action-card-badge">[ MODE: 03 ]</span>
+            <span class="yd action-card-icon">T</span>
+          </div>
+          <div class="action-card-title">SIMULATE &amp; TEST</div>
+          <p class="action-card-desc">
+            Run an in-browser virtual optical loopback with 100 KB to 10 MB test files and up to 40% artificial packet drop. Execute the automated cryptographic and fountain test suite.
+          </p>
+          <button class="btn btn-secondary" id="landing-btn-test" style="width: 100%; margin-top: auto;">
+            [ RUN SIMULATION ] &rarr;
+          </button>
+        </div>
+      </div>
+
+      <!-- System Architecture Section -->
+      <div class="card" style="margin-top: 24px;">
+        <div class="card-title">
+          <span>// PROTOCOL &amp; PIPELINE ARCHITECTURE</span>
+          <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">[SPEC: RFC-LT-V1]</span>
+        </div>
+        <pre class="ascii-art" style="color: var(--text); font-size: 11px; line-height: 1.35; overflow-x: auto; padding: 12px; background: #0c0d10; border: 1px solid var(--card-border); border-radius: var(--radius);">
++-----------------------------------------------------------------------------------------+
+|                              TRANSMITTER PIPELINE (SENDER)                              |
++-----------------------------------------------------------------------------------------+
+|                                                                                         |
+|   [ SOURCE FILE (Up to 10 MB) ]                                                         |
+|                 |                                                                       |
+|                 v                                                                       |
+|   +---------------------------+       +---------------------------+                     |
+|   |   fflate DEFLATE COMPRESS | ----&gt; |   AES-256-GCM ENCRYPTION  | (Optional WebCrypto)|
+|   |  (Applied if size shrinks)|       |  (PBKDF2-SHA256, 200k iter|                     |
+|   +---------------------------+       +---------------------------+                     |
+|                                                     |                                   |
+|                                                     v                                   |
+|   +---------------------------------------------------------------------------------+   |
+|   |                        LUBY TRANSFORM (LT) FOUNTAIN CODE                        |   |
+|   |   - Partitioned into K source blocks (128B - 768B)                              |   |
+|   |   - Deterministic seed generates Soliton distribution degree &amp; neighbor indices |   |
+|   |   - XORs source blocks into rateless droplets (1.15x overhead requirement)      |   |
+|   +---------------------------------------------------------------------------------+   |
+|                                                     |                                   |
+|                                                     v                                   |
+|   +---------------------------------------------------------------------------------+   |
+|   |                            OPTICAL QR EMITTER ENGINE                            |   |
+|   |   - Modes: 1x1 Single QR, 2x2 Grid (4 codes/frame), 3x3 Grid (9 codes/frame)    |   |
+|   |   - Offscreen canvas pre-render ring buffer with requestAnimationFrame loop     |   |
+|   +---------------------------------------------------------------------------------+   |
+|                                                                                         |
++-----------------------------------------------------------------------------------------+
+                                              |
+                          ~~~~~~~~~~~~~~~~~~~~| (PHYSICAL OPTICAL AIR-GAP) ~~~~~~~~~~~~~~~~~~
+                                              v
++-----------------------------------------------------------------------------------------+
+|                               RECEIVER PIPELINE (CAMERA)                                |
++-----------------------------------------------------------------------------------------+
+|                                                                                         |
+|   +---------------------------------------------------------------------------------+   |
+|   |                            OPTICAL SENSOR (CAMERA)                              |   |
+|   |   - High-resolution getUserMedia stream with BarcodeDetector hardware API       |   |
+|   |   - Fallback multi-region tiled jsQR optical scanner                            |   |
+|   +---------------------------------------------------------------------------------+   |
+|                                                     |                                   |
+|                                                     v                                   |
+|   +---------------------------------------------------------------------------------+   |
+|   |                      WEB WORKER PEELING &amp; SOLVER ENGINE                         |   |
+|   |   - CRC32 verification &amp; Session ID filter (drops corrupt / foreign packets)   |   |
+|   |   - Ripple queue degree-1 back-substitution (Uint32Array fast bitwise XOR)      |   |
+|   |   - Gaussian elimination residual fallback when peeling stalls near 100%        |   |
+|   +---------------------------------------------------------------------------------+   |
+|                                                     |                                   |
+|                                                     v                                   |
+|   +---------------------------------------------------------------------------------+   |
+|   |                     SHA-256 VERIFICATION &amp; AUTO-TERMINATION                    |   |
+|   |   - Verified against sender metadata SHA-256 digest                             |   |
+|   |   - Camera deactivated immediately to save power &amp; lock state                   |   |
+|   |   - Download presented &amp; auto-wipe zeroes all RAM buffers                       |   |
+|   +---------------------------------------------------------------------------------+   |
+|                                                                                         |
++-----------------------------------------------------------------------------------------+
+        </pre>
+      </div>
+
+      <!-- Why Unique Section -->
+      <div class="card" style="margin-top: 24px;">
+        <div class="card-title">
+          <span>// WHY SABRINA SHARES IS UNIQUE</span>
+          <span style="font-size: 11px; color: var(--accent); font-family: var(--font-mono);">[ZERO-TRUST]</span>
+        </div>
+        <div class="features-grid">
+          <div class="feature-item">
+            <div class="feature-title">[ 01. STRICT UNIDIRECTIONAL DIODE ]</div>
+            <div class="feature-desc">
+              Data travels purely by photons emitted from a screen to a camera sensor. There is no radio transmitter, no Wi-Fi handshake, no Bluetooth ping, and no physical medium to carry return packets. Backchannel leakage is mathematically and physically impossible.
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">[ 02. RATELESS SOLITON FOUNTAIN ]</div>
+            <div class="feature-desc">
+              Unlike normal QR transfers that require ordered frames, Sabrina Shares uses rateless Luby Transform fountain codes. The receiver can start scanning at any second, miss half the frames due to glare or motion blur, and successfully reconstruct the full payload.
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">[ 03. AUTOMATIC TERMINATION ]</div>
+            <div class="feature-desc">
+              Once all K blocks are reconstructed and the cryptographic SHA-256 matches, the optical decoder immediately cuts the video stream, stops CPU cycles, and presents the completed file download.
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">[ 04. ZERO-PERSISTENCE RAM HEAP ]</div>
+            <div class="feature-desc">
+              No cookies, no localStorage, no IndexedDB, and no Cache API storage of transferred data. All file chunks live strictly in volatile memory and are zeroed out upon session wipe or file download.
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">[ 05. MULTI-GRID THROUGHPUT ]</div>
+            <div class="feature-desc">
+              Supports 1x1, 2x2, and 3x3 multi-QR grids per frame. Combined with framerates up to 24 FPS, high-end mobile cameras can capture multiple droplets simultaneously for maximum bandwidth.
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-title">[ 06. WEB CRYPTO SHIELD ]</div>
+            <div class="feature-desc">
+              Optional AES-256-GCM encryption with 200,000+ iteration PBKDF2-SHA256 key derivation performed natively in browser WebCrypto with random 128-bit salt and 96-bit IV.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- ==================== SENDER TAB ==================== -->
-    <div class="tab-pane active" id="tab-send">
+    <div class="tab-pane" id="tab-send">
       <!-- File Selection View -->
       <div id="sender-setup-view">
         <div class="card">
-          <div class="card-title">1. Select Payload File (Up to 10 MB)</div>
+          <div class="card-title">// 01. SELECT PAYLOAD FILE (UP TO 10 MB)</div>
           <div class="dropzone" id="dropzone">
-            <div class="dropzone-icon">📁</div>
-            <div class="dropzone-text">Click or drag & drop file here</div>
-            <div class="dropzone-hint">Zero network. 100% in-memory processing. Max 10 MB.</div>
+            <div class="dropzone-icon"><span class="yd">D</span></div>
+            <div class="dropzone-text">[ SELECT OR DRAG FILE HERE ]</div>
+            <div class="dropzone-hint">100% in-memory RAM processing. Max 10 MB.</div>
             <input type="file" id="file-input" style="display: none;">
           </div>
 
@@ -789,11 +1121,11 @@
         </div>
 
         <div class="card" id="sender-options-card" style="display: none;">
-          <div class="card-title">2. Encryption & Throughput Tuning</div>
+          <div class="card-title">// 02. ENCRYPTION &amp; THROUGHPUT TUNING</div>
 
           <!-- Optional AES-256-GCM Encryption -->
           <div class="form-group">
-            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; font-weight: 700;">
               <input type="checkbox" id="chk-encrypt" style="accent-color: var(--accent); width: 16px; height: 16px;">
               Encrypt File with AES-256-GCM (WebCrypto)
             </label>
@@ -801,7 +1133,7 @@
               <label class="form-label">Passphrase (PBKDF2-SHA256, 200,000+ iterations)</label>
               <div style="position: relative;">
                 <input type="password" id="input-passphrase" class="form-control" placeholder="Enter transfer passphrase...">
-                <button type="button" id="btn-toggle-pass" style="position: absolute; right: 10px; top: 10px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 13px;">Show</button>
+                <button type="button" id="btn-toggle-pass" style="position: absolute; right: 10px; top: 8px; background: none; border: none; color: var(--accent); cursor: pointer; font-size: 12px; font-weight: 700;">[SHOW]</button>
               </div>
             </div>
           </div>
@@ -811,32 +1143,32 @@
             <label class="form-label">Throughput Preset</label>
             <div class="preset-group">
               <div class="preset-btn active" data-preset="reliable">
-                <div class="preset-name">🛡️ Reliable</div>
-                <div class="preset-desc">Single QR • 8 FPS • ECC M • Optimal for dim lighting or distance</div>
+                <div class="preset-name"><span class="yd">R</span> [ RELIABLE ]</div>
+                <div class="preset-desc">Single QR &bull; 8 FPS &bull; ECC M &bull; Optimal for dim lighting or distance</div>
               </div>
               <div class="preset-btn" data-preset="balanced">
-                <div class="preset-name">⚖️ Balanced</div>
-                <div class="preset-desc">2x2 Grid • 10 FPS • ECC L • Higher throughput on modern phones</div>
+                <div class="preset-name"><span class="yd">B</span> [ BALANCED ]</div>
+                <div class="preset-desc">2x2 Grid &bull; 10 FPS &bull; ECC L &bull; Higher throughput on modern phones</div>
               </div>
               <div class="preset-btn" data-preset="fast">
-                <div class="preset-name">⚡ Fast</div>
-                <div class="preset-desc">3x3 Grid • 12 FPS • ECC L • Maximum bandwidth (1080p+ camera)</div>
+                <div class="preset-name"><span class="yd">F</span> [ FAST ]</div>
+                <div class="preset-desc">3x3 Grid &bull; 12 FPS &bull; ECC L &bull; Maximum bandwidth (1080p+ camera)</div>
               </div>
             </div>
           </div>
 
           <!-- Custom Advanced Tuning -->
           <details style="margin-top: 14px;">
-            <summary>⚙️ Manual Advanced Controls</summary>
-            <div style="margin-top: 12px; background: #0f121e; padding: 14px; border-radius: 8px; border: 1px solid var(--card-border);">
+            <summary><span class="yd">A</span> [ ADVANCED PARAMETERS ]</summary>
+            <div style="margin-top: 12px; background: #0e1017; padding: 14px; border-radius: var(--radius); border: 1px solid var(--card-border);">
               <div class="slider-row">
                 <span>Flashing FPS:</span>
                 <input type="range" id="slider-fps" min="1" max="24" value="8">
-                <span id="lbl-fps" style="font-family: var(--font-mono); font-weight: 700; width: 30px;">8</span>
+                <span id="lbl-fps" style="font-family: var(--font-mono); font-weight: 700; width: 30px; color: var(--accent);">8</span>
               </div>
               <div class="slider-row">
                 <span>Grid Layout:</span>
-                <select id="select-grid" class="form-control" style="width: 140px; padding: 6px 10px;">
+                <select id="select-grid" class="form-control" style="width: 150px; padding: 6px 10px;">
                   <option value="1x1">1x1 (Single QR)</option>
                   <option value="2x2">2x2 (4 QRs/frame)</option>
                   <option value="3x3">3x3 (9 QRs/frame)</option>
@@ -844,7 +1176,7 @@
               </div>
               <div class="slider-row">
                 <span>Error Correction (ECC):</span>
-                <select id="select-ecc" class="form-control" style="width: 140px; padding: 6px 10px;">
+                <select id="select-ecc" class="form-control" style="width: 150px; padding: 6px 10px;">
                   <option value="L">L (Low - 7%)</option>
                   <option value="M" selected>M (Medium - 15%)</option>
                   <option value="Q">Q (Quartile - 25%)</option>
@@ -854,11 +1186,11 @@
               <div class="slider-row">
                 <span>Block Size (Bytes):</span>
                 <input type="range" id="slider-blocksize" min="128" max="768" step="32" value="384">
-                <span id="lbl-blocksize" style="font-family: var(--font-mono); font-weight: 700; width: 45px;">384B</span>
+                <span id="lbl-blocksize" style="font-family: var(--font-mono); font-weight: 700; width: 45px; color: var(--accent);">384B</span>
               </div>
               <div class="slider-row">
                 <span>Auto-stop Stream:</span>
-                <select id="select-autostop" class="form-control" style="width: 140px; padding: 6px 10px;">
+                <select id="select-autostop" class="form-control" style="width: 150px; padding: 6px 10px;">
                   <option value="0">Continuous Loop</option>
                   <option value="2">Stop after 2 Loops</option>
                   <option value="3" selected>Stop after 3 Loops</option>
@@ -874,14 +1206,14 @@
               <div class="estimate-title">Estimated Transfer Time</div>
               <div class="estimate-val" id="estimate-time-val">Calculating...</div>
             </div>
-            <div id="estimate-stats" style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono);">
-              Overhead: ~1.15x • Source Blocks: -
+            <div id="estimate-stats" style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
+              Overhead: ~1.15x &bull; Source Blocks: -
             </div>
           </div>
 
           <!-- Start Button -->
           <button class="btn btn-primary btn-large" id="btn-start-send">
-            🚀 Start Sabrina QR Flashing Stream
+            <span class="yd">S</span> [ START QR STREAM ]
           </button>
         </div>
       </div>
@@ -889,14 +1221,14 @@
       <!-- Active Flashing Transmission Screen -->
       <div id="sender-active-view">
         <div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 8px;">
-          <button class="btn btn-danger" id="btn-stop-send">⏹️ Stop Stream</button>
+          <button class="btn btn-danger" id="btn-stop-send"><span class="yd">X</span> [ STOP STREAM ]</button>
           <div style="display: flex; gap: 8px;">
-            <button class="btn btn-secondary" id="btn-pause-send">⏸️ Pause</button>
-            <button class="btn btn-primary" id="btn-fullscreen">⛶ Fullscreen</button>
+            <button class="btn btn-secondary" id="btn-pause-send"><span class="yd">P</span> [ PAUSE ]</button>
+            <button class="btn btn-primary" id="btn-fullscreen"><span class="yd">F</span> [ FULLSCREEN ]</button>
           </div>
         </div>
-        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px; text-align: center; background: rgba(99, 102, 241, 0.08); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(99, 102, 241, 0.2);">
-          📡 Broadcasting fountain stream. When receiver shows <b>"Transfer Complete"</b>, tap <b>Stop Stream</b> anytime.
+        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px; text-align: center; background: rgba(235, 216, 170, 0.05); padding: 8px 14px; border-radius: var(--radius); border: 1px solid var(--card-border);">
+          [STREAM ACTIVE] Broadcasting fountain stream. When receiver shows <b>"Transfer Complete"</b>, tap <b>[STOP STREAM]</b> anytime.
         </div>
 
         <div class="canvas-container" id="canvas-wrapper">
@@ -933,8 +1265,8 @@
     <div class="tab-pane" id="tab-receive">
       <div class="card">
         <div class="card-title">
-          <span>Camera Viewfinder</span>
-          <button class="btn btn-secondary" id="btn-switch-cam" style="padding: 4px 10px; font-size: 12px;">🔄 Switch Camera</button>
+          <span>// CAMERA OPTICAL VIEWFINDER</span>
+          <button class="btn btn-secondary" id="btn-switch-cam" style="padding: 4px 10px; font-size: 12px;"><span class="yd">C</span> [ SWITCH CAM ]</button>
         </div>
 
         <!-- Camera Viewfinder -->
@@ -944,24 +1276,24 @@
           <div class="reticle-frame" id="reticle-frame">
             <div class="reticle-laser"></div>
           </div>
-          <div id="viewfinder-success-overlay" style="display: none; position: absolute; inset: 0; background: rgba(11, 13, 20, 0.88); backdrop-filter: blur(8px); flex-direction: column; align-items: center; justify-content: center; z-index: 10;">
-            <div style="font-size: 52px; margin-bottom: 6px;">✅</div>
-            <div style="font-weight: 800; font-size: 17px; color: var(--success); letter-spacing: 0.5px;">TRANSFER COMPLETE</div>
-            <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Camera stopped • 100% Verified</div>
+          <div id="viewfinder-success-overlay" style="display: none; position: absolute; inset: 0; background: rgba(12, 13, 16, 0.92); backdrop-filter: blur(8px); flex-direction: column; align-items: center; justify-content: center; z-index: 10;">
+            <div class="yd" style="font-size: 48px; color: var(--success); margin-bottom: 8px;">V</div>
+            <div style="font-weight: 800; font-size: 16px; color: var(--success); letter-spacing: 1px;">[ TRANSFER COMPLETE ]</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Camera stopped &bull; 100% Verified</div>
           </div>
         </div>
 
         <!-- Live Diagnostics Banner -->
         <div class="diag-banner info" id="diag-banner">
-          <span>🔍</span>
+          <span class="yd">!</span>
           <span id="diag-text">Initializing camera and optical decoder...</span>
         </div>
 
         <!-- Progress Section -->
         <div style="margin-top: 14px;">
-          <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600;">
+          <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700;">
             <span id="recv-progress-text">Waiting for stream...</span>
-            <span id="recv-progress-percent" style="font-family: var(--font-mono);">0%</span>
+            <span id="recv-progress-percent" style="font-family: var(--font-mono); color: var(--accent);">0%</span>
           </div>
           <div class="progress-bar-wrap">
             <div class="progress-bar-fill" id="recv-progress-bar"></div>
@@ -995,7 +1327,7 @@
 
       <!-- Incoming File Details Card (Visible once metadata arrives) -->
       <div class="card" id="recv-meta-card" style="display: none;">
-        <div class="card-title">Incoming Payload Detected</div>
+        <div class="card-title">// INCOMING PAYLOAD DETECTED</div>
         <div class="info-grid">
           <div class="info-item">
             <div class="info-label">Filename</div>
@@ -1017,19 +1349,19 @@
       </div>
 
       <!-- Transfer Completed Card -->
-      <div class="card" id="recv-complete-card" style="display: none; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.05);">
-        <div class="card-title" style="color: var(--success);">🎉 File Reconstructed & Verified!</div>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
-          All source blocks have been decoded with zero errors. Camera stream deactivated. The SHA-256 cryptographic digest matches the sender's signature exactly.
+      <div class="card" id="recv-complete-card" style="display: none; border-color: rgba(163, 190, 140, 0.4); background: rgba(163, 190, 140, 0.05);">
+        <div class="card-title" style="color: var(--success);"><span class="yd">V</span> [ FILE RECONSTRUCTED &amp; VERIFIED ]</div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.5;">
+          All source blocks have been decoded with zero errors. Camera stream deactivated. The SHA-256 cryptographic digest matches the sender signature exactly.
         </p>
-        <div style="background: #0d121c; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--card-border); margin-bottom: 16px;">
+        <div style="background: #0c0d10; padding: 10px 14px; border-radius: var(--radius); border: 1px solid var(--card-border); margin-bottom: 16px;">
           <div class="info-label">Verified SHA-256 Plaintext Digest</div>
-          <div id="recv-verified-sha" style="font-family: var(--font-mono); font-size: 12px; color: var(--success); word-break: break-all;">-</div>
+          <div id="recv-verified-sha" style="font-family: var(--font-mono); font-size: 11px; color: var(--success); word-break: break-all;">-</div>
         </div>
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-          <button class="btn btn-primary btn-large" id="btn-download-file">💾 Save File</button>
-          <button class="btn btn-danger" id="btn-save-wipe">Save & Wipe</button>
-          <button class="btn btn-secondary" id="btn-scan-another">🔄 Receive Another File</button>
+          <button class="btn btn-primary btn-large" id="btn-download-file"><span class="yd">D</span> [ SAVE FILE ]</button>
+          <button class="btn btn-danger" id="btn-save-wipe"><span class="yd">W</span> [ SAVE &amp; WIPE ]</button>
+          <button class="btn btn-secondary" id="btn-scan-another"><span class="yd">R</span> [ RECEIVE ANOTHER ]</button>
         </div>
       </div>
     </div>
@@ -1037,9 +1369,9 @@
     <!-- ==================== LOOPBACK & SELF-TESTS TAB ==================== -->
     <div class="tab-pane" id="tab-loopback">
       <div class="card">
-        <div class="card-title">Optical Loopback Simulation (No Camera Required)</div>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">
-          Simulate transmitting full 1 MB, 5 MB, or 10 MB files through an emulated lossy channel. Packets generated by the fountain encoder are piped directly into the worker decoder with artificial loss and jitter.
+        <div class="card-title">// OPTICAL LOOPBACK SIMULATION (VIRTUAL AIR-GAP)</div>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5;">
+          Simulate transmitting full 100 KB, 1 MB, 5 MB, or 10 MB payloads through an emulated lossy channel. Packets generated by the fountain encoder are piped directly into the worker decoder with artificial loss and jitter.
         </p>
         <div class="info-grid" style="margin-bottom: 14px;">
           <div class="info-item">
@@ -1062,19 +1394,19 @@
           </div>
         </div>
         <button class="btn btn-primary btn-large" id="btn-run-loopback">
-          🧪 Run Loopback Simulation
+          <span class="yd">T</span> [ EXECUTE LOOPBACK SIMULATION ]
         </button>
       </div>
 
       <div class="card">
         <div class="card-title">
-          <span>Automated Self-Test Suite</span>
-          <button class="btn btn-secondary" id="btn-run-tests" style="padding: 6px 14px; font-size: 13px;">▶️ Run All Tests</button>
+          <span>// AUTOMATED SELF-TEST SUITE</span>
+          <button class="btn btn-secondary" id="btn-run-tests" style="padding: 6px 14px; font-size: 12px;"><span class="yd">P</span> [ RUN TESTS ]</button>
         </div>
-        <p style="font-size: 13px; color: var(--text-muted);">
+        <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
           Verifies: (1) 10 MB Peeling Decoder under 30% drop, (2) CRC32 corruption rejection, (3) Wrong-session ID rejection, (4) Duplicate packet deduplication, (5) End-to-end AES-256-GCM + PBKDF2 roundtrip, (6) Fountain stream late-join recovery.
         </p>
-        <div class="test-terminal" id="test-console">Ready to run self-tests. Click 'Run All Tests' or call window.SabrinaTests.runAll() in DevTools.</div>
+        <div class="test-terminal" id="test-console">Ready to run self-tests. Click '[ RUN TESTS ]' or call window.SabrinaTests.runAll() in DevTools.</div>
       </div>
     </div>
   </main>
@@ -1082,16 +1414,16 @@
   <!-- Passphrase Decryption Modal -->
   <div class="modal-overlay" id="decrypt-modal">
     <div class="modal-card">
-      <div class="card-title">🔐 Encrypted File Detected</div>
-      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">
-        This file is protected by AES-256-GCM encryption. Enter the passphrase agreed upon with the sender to reconstruct the plaintext.
+      <div class="card-title"><span class="yd">K</span> [ ENCRYPTED PAYLOAD DETECTED ]</div>
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5;">
+        This payload is protected by AES-256-GCM encryption. Enter the passphrase agreed upon with the transmitter to reconstruct the plaintext.
       </p>
       <div class="form-group">
         <input type="password" id="recv-passphrase-input" class="form-control" placeholder="Enter decrypt passphrase...">
       </div>
       <div style="display: flex; gap: 10px; justify-content: flex-end;">
-        <button class="btn btn-secondary" id="btn-cancel-decrypt">Cancel</button>
-        <button class="btn btn-primary" id="btn-submit-decrypt">Unlock & Decrypt</button>
+        <button class="btn btn-secondary" id="btn-cancel-decrypt">[ CANCEL ]</button>
+        <button class="btn btn-primary" id="btn-submit-decrypt">[ UNLOCK &amp; DECRYPT ]</button>
       </div>
     </div>
   </div>
@@ -1826,21 +2158,46 @@ Minimum version required to store current data is: `+o+`.
     // --- TAB SWITCHING ---
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabPanes = document.querySelectorAll('.tab-pane');
-    tabBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        tabBtns.forEach(b => b.classList.remove('active'));
-        tabPanes.forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        const targetId = btn.getAttribute('data-tab');
-        document.getElementById(targetId).classList.add('active');
-        
-        if (targetId === 'tab-receive') {
-          startReceiverCamera();
+
+    function activateTab(targetId) {
+      tabBtns.forEach(b => {
+        if (b.getAttribute('data-tab') === targetId) {
+          b.classList.add('active');
         } else {
-          stopReceiverCamera();
+          b.classList.remove('active');
         }
       });
+      tabPanes.forEach(p => {
+        if (p.id === targetId) {
+          p.classList.add('active');
+        } else {
+          p.classList.remove('active');
+        }
+      });
+      
+      if (targetId === 'tab-receive') {
+        startReceiverCamera();
+      } else {
+        stopReceiverCamera();
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.getAttribute('data-tab');
+        activateTab(targetId);
+      });
     });
+
+    // Landing Page Action Card & Button Redirections
+    document.getElementById('brand-home-link')?.addEventListener('click', () => activateTab('tab-landing'));
+    document.getElementById('landing-btn-send')?.addEventListener('click', (e) => { e.stopPropagation(); activateTab('tab-send'); });
+    document.getElementById('landing-card-send')?.addEventListener('click', () => activateTab('tab-send'));
+    document.getElementById('landing-btn-receive')?.addEventListener('click', (e) => { e.stopPropagation(); activateTab('tab-receive'); });
+    document.getElementById('landing-card-receive')?.addEventListener('click', () => activateTab('tab-receive'));
+    document.getElementById('landing-btn-test')?.addEventListener('click', (e) => { e.stopPropagation(); activateTab('tab-loopback'); });
+    document.getElementById('landing-card-test')?.addEventListener('click', () => activateTab('tab-loopback'));
 
     // --- PRESET SELECTION ---
     const presetBtns = document.querySelectorAll('.preset-btn');
@@ -2012,7 +2369,7 @@ Minimum version required to store current data is: `+o+`.
       
       if (estSeconds > 600) {
         banner.classList.add('estimate-warning');
-        valEl.textContent += " ⚠️ (Exceeds 10 min)";
+        valEl.textContent += " [!] (Exceeds 10 min)";
       } else {
         banner.classList.remove('estimate-warning');
       }
@@ -2315,7 +2672,7 @@ Minimum version required to store current data is: `+o+`.
           document.getElementById('recv-filename').textContent = metadata.filename;
           document.getElementById('recv-orig-size').textContent = formatBytes(metadata.origSize);
           document.getElementById('recv-blocks-count').textContent = metadata.totalBlocks + ' blocks (' + metadata.blockSize + 'B)';
-          document.getElementById('recv-security-badge').textContent = metadata.isEncrypted ? '🔒 AES-256-GCM' : 'Plaintext';
+          document.getElementById('recv-security-badge').textContent = metadata.isEncrypted ? '[AES-256-GCM]' : 'Plaintext';
           document.getElementById('recv-meta-card').style.display = 'block';
           
           setDiag("info", "Metadata locked: " + metadata.filename + " (" + formatBytes(metadata.origSize) + "). Receiving data...");
@@ -2438,7 +2795,7 @@ Minimum version required to store current data is: `+o+`.
         const completeCard = document.getElementById('recv-complete-card');
         completeCard.style.display = 'block';
         completeCard.scrollIntoView({ behavior: 'smooth' });
-        setDiag("info", "🎉 Transfer Complete! Hash verified 100% byte-exact. Camera stopped.");
+        setDiag("info", "[TRANSFER COMPLETE] Hash verified 100% byte-exact. Optical scanner stopped.");
       } catch (err) {
         console.error("handleReceivedData error:", err);
         stopReceiverCamera();
@@ -2697,7 +3054,7 @@ Minimum version required to store current data is: `+o+`.
           document.getElementById('recv-filename').textContent = metadata.filename;
           document.getElementById('recv-orig-size').textContent = formatBytes(metadata.origSize);
           document.getElementById('recv-blocks-count').textContent = metadata.totalBlocks + ' blocks (' + metadata.blockSize + 'B)';
-          document.getElementById('recv-security-badge').textContent = metadata.isEncrypted ? '🔒 AES-256-GCM' : 'Plaintext';
+          document.getElementById('recv-security-badge').textContent = metadata.isEncrypted ? '[AES-256-GCM]' : 'Plaintext';
           document.getElementById('recv-meta-card').style.display = 'block';
           
           setDiag("info", "Metadata locked: " + metadata.filename + " (" + formatBytes(metadata.origSize) + "). Receiving data...");

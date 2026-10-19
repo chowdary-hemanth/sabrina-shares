@@ -1,6 +1,6 @@
-# Sabrina Shares 🕊️📱
+# Sabrina Shares
 
-**Sabrina Shares** is an offline, air-gapped, zero-persistence file transfer tool designed to transmit files of up to 10 MB between two devices across an optical visual data channel using a rapidly cycling stream of QR codes.
+**Sabrina Shares** is an offline, zero-persistence file transfer tool designed to transmit files of up to 10 MB between two devices across an optical visual data channel using a rapidly cycling stream of QR codes.
 
 The sender screen flashes high-contrast QR frames; the receiver's camera scans them and reconstructs the original file byte-for-byte.
 
@@ -13,7 +13,7 @@ The sender screen flashes high-contrast QR frames; the receiver's camera scans t
 
 ---
 
-## 🔒 Security & Privacy Architecture
+## Security & Privacy Architecture
 
 ```
 [ Sender Device ]
@@ -40,7 +40,7 @@ The sender screen flashes high-contrast QR frames; the receiver's camera scans t
 
 ### Content Security Policy (CSP)
 ```http
-Content-Security-Policy: default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; manifest-src 'self'; worker-src 'self' blob:; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';
+Content-Security-Policy: default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; manifest-src 'self'; worker-src 'self' blob:; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';
 ```
 - `connect-src 'none'`: Browser refuses any `fetch()`, `XMLHttpRequest`, `WebSocket`, `EventSource`, or Beacon.
 - `manifest-src 'self'` & `worker-src 'self' blob:`: Permits the offline service worker and local blob Web Workers while forbidding any external code execution.
