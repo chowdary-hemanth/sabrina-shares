@@ -305,7 +305,7 @@
     .hero-box {
       position: relative;
       z-index: 1;
-      background: rgba(255, 253, 249, 0.22);
+      background: rgba(255, 253, 249, 0.30);
       backdrop-filter: blur(2px);
       -webkit-backdrop-filter: blur(2px);
       border: 1.5px solid rgba(28, 31, 38, 0.16);
@@ -381,7 +381,7 @@
       font-weight: 700;
       letter-spacing: 0.6px;
       padding: 4px 10px;
-      background: rgba(237, 228, 209, 0.35);
+      background: rgba(237, 228, 209, 0.45);
       color: var(--text);
       border: 1px solid rgba(28, 31, 38, 0.2);
       border-radius: 4px;
@@ -434,7 +434,7 @@
     }
 
     .action-card {
-      background: rgba(255, 253, 249, 0.22);
+      background: rgba(255, 253, 249, 0.30);
       backdrop-filter: blur(2px);
       -webkit-backdrop-filter: blur(2px);
       border: 1.5px solid rgba(28, 31, 38, 0.16);
@@ -467,16 +467,18 @@
       font-weight: 700;
       color: var(--text);
       letter-spacing: 1px;
-      background: rgba(237, 228, 209, 0.4);
+      background: rgba(237, 228, 209, 0.48);
       padding: 3px 8px;
       border-radius: 4px;
       border: 1px solid rgba(28, 31, 38, 0.2);
       backdrop-filter: blur(2px);
     }
 
-    /* Transparent Action Card Buttons */
-    .action-card .btn-primary {
-      background: rgba(245, 237, 221, 0.25);
+    /* Transparent Action Card Buttons (Both Primary & Secondary) */
+    .action-card .btn,
+    .action-card .btn-primary,
+    .action-card .btn-secondary {
+      background: rgba(245, 237, 221, 0.34);
       backdrop-filter: blur(2px);
       -webkit-backdrop-filter: blur(2px);
       color: var(--text);
@@ -485,7 +487,9 @@
       font-weight: 700;
     }
 
-    .action-card .btn-primary:hover {
+    .action-card .btn:hover,
+    .action-card .btn-primary:hover,
+    .action-card .btn-secondary:hover {
       background: rgba(233, 220, 191, 0.85);
       border-color: var(--text);
       box-shadow: 0 4px 14px rgba(26, 28, 34, 0.16);
@@ -1288,7 +1292,7 @@
           <p class="action-card-desc">
             Run an in-browser virtual optical loopback with 100 KB to 10 MB payloads and up to 40% packet drop. Execute the automated test suite.
           </p>
-          <button class="btn btn-secondary" id="landing-btn-test" style="width: 100%; margin-top: auto;">
+          <button class="btn btn-primary" id="landing-btn-test" style="width: 100%; margin-top: auto;">
             [ RUN SIMULATION ] &rarr;
           </button>
         </div>
@@ -1303,7 +1307,7 @@
           <p class="action-card-desc">
             Explore the protocol pipeline, physical optical diode isolation, Luby Transform Soliton mathematics, and zero-persistence architecture.
           </p>
-          <button class="btn btn-secondary" id="landing-btn-know-more" style="width: 100%; margin-top: auto;">
+          <button class="btn btn-primary" id="landing-btn-know-more" style="width: 100%; margin-top: auto;">
             [ ARCHITECTURE &amp; SPECS ] &rarr;
           </button>
         </div>
