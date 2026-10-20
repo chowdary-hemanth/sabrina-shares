@@ -11,7 +11,7 @@
  * - No background sync, no push notifications, no analytics.
  */
 
-const CACHE_NAME = 'sabrina-shell-v1.5.0';
+const CACHE_NAME = 'sabrina-shell-v1.6.0';
 
 const PRECACHE_ASSETS = [
   './',

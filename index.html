@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <!-- Hard constraint: Strict CSP with zero external network requests except optional web fonts -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; manifest-src 'self'; worker-src 'self' blob:; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';">
+  <!-- Hard constraint: Strict CSP with zero external network requests except optional web fonts and ASCII Magic runtime -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://www.ascii-magic.com; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; manifest-src 'self'; worker-src 'self' blob:; connect-src 'self' https://www.ascii-magic.com; base-uri 'none'; form-action 'none'; frame-ancestors 'none';">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/jpeg" href="icons/logo.jpg">
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
@@ -15,6 +15,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Sabrina">
   <title>Sabrina Shares // Optical Stream Diode</title>
+
+  <!-- ASCII Magic Runtime (loaded once in browser) -->
+  <script type="module" src="https://www.ascii-magic.com/ascii/ascii.js"></script>
 
   <!-- Google Fonts: Bitcount Single Ink and Yarndings 12 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -303,60 +306,237 @@
       background: var(--card-bg);
       border: 1.5px solid var(--card-border);
       border-radius: var(--radius);
-      padding: 20px 24px;
-      text-align: center;
+      padding: 18px 24px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       margin-bottom: 0px;
     }
 
+    .hero-split-layout {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      width: 100%;
+    }
+
+    .hero-text-col {
+      flex: 1 1 54%;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      text-align: left;
+    }
+
+    .hero-brand-line {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
     .hero-avatar {
-      width: 96px;
-      height: 96px;
+      width: 80px;
+      height: 80px;
       border-radius: 8px;
       object-fit: cover;
       object-position: center;
       border: 2px solid var(--text);
-      box-shadow: 0 4px 16px rgba(26, 28, 34, 0.12);
-      margin-bottom: 14px;
+      box-shadow: 0 4px 14px rgba(26, 28, 34, 0.12);
       display: block;
+      flex-shrink: 0;
       transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
     .hero-avatar:hover {
       transform: scale(1.05);
     }
 
-    .ascii-hero-wrap {
-      background: #fbf7ee;
-      border: 1.5px solid var(--card-border);
-      border-radius: var(--radius);
-      padding: 10px 16px;
-      margin-bottom: 12px;
-      max-width: 100%;
-      overflow-x: auto;
+    .hero-brand-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
     }
 
-    .ascii-art {
-      font-family: var(--font-mono) !important;
+    .hero-eyebrow {
       font-size: 11px;
-      line-height: 1.15;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .hero-title {
+      font-family: 'Bitcount Single Ink', 'Courier New', monospace;
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: 1.2px;
       color: var(--text);
-      letter-spacing: 0px;
-      white-space: pre;
-      margin: 0 auto;
-      display: inline-block;
-      text-align: left;
+      line-height: 1.05;
+      margin: 0;
+    }
+
+    .hero-subtitle {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.4px;
     }
 
     .hero-desc {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 500;
-      color: var(--text-muted);
-      line-height: 1.55;
-      max-width: 840px;
+      color: var(--text);
+      line-height: 1.5;
+      margin: 0;
+      max-width: 680px;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      padding: 3px 8px;
+      background: #ede4d1;
+      color: var(--text);
+      border: 1px solid #dcceb4;
+      border-radius: 4px;
+    }
+
+    .hero-badge .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text);
+      display: inline-block;
+    }
+
+    /* Right Column: ASCII Magic Terminal Window */
+    .hero-art-col {
+      flex: 0 0 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hero-art-window {
+      width: 410px;
+      max-width: 100%;
+      background: #04050c;
+      border: 1.5px solid var(--text);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(26, 28, 34, 0.16), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hero-art-header {
+      background: #111420;
+      border-bottom: 1px solid #202636;
+      padding: 6px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+    }
+
+    .hero-art-dots {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .hero-art-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .hero-art-dot.dot-1 { background: #e06c75; }
+    .hero-art-dot.dot-2 { background: #e5c07b; }
+    .hero-art-dot.dot-3 { background: #98c379; }
+
+    .hero-art-title {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: #cbd3e6;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .hero-art-live-pill {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      color: #98c379;
+      background: rgba(152, 195, 121, 0.15);
+      border: 1px solid rgba(152, 195, 121, 0.35);
+      padding: 1px 6px;
+      border-radius: 3px;
+      letter-spacing: 0.5px;
+    }
+
+    .hero-art-body {
+      background: #04050c;
+      padding: 6px 4px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 228px;
+      overflow: hidden;
+    }
+
+    .hero-art-body ascii-art {
+      display: block;
       margin: 0 auto;
+    }
+
+    .hero-art-footer {
+      background: #0c0f18;
+      border-top: 1px solid #1c2130;
+      padding: 4px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: #8b95af;
+      letter-spacing: 0.5px;
+    }
+
+    @media (max-width: 960px) {
+      .hero-split-layout {
+        flex-direction: column;
+        text-align: center;
+      }
+      .hero-text-col {
+        text-align: center;
+        align-items: center;
+      }
+      .hero-brand-line {
+        flex-direction: column;
+        text-align: center;
+      }
+      .hero-brand-meta {
+        align-items: center;
+      }
+      .hero-badges {
+        justify-content: center;
+      }
+      .hero-art-window {
+        width: 100%;
+        max-width: 390px;
+      }
     }
 
     /* 4 Primary Operations Action Cards */
@@ -1104,7 +1284,9 @@
       .canvas-container { padding: 12px; }
       .stream-hud { gap: 10px; padding: 10px; }
       .hud-stat-val { font-size: 13px; }
-      .ascii-art { font-size: 8px; }
+      .hero-art-window { max-width: 100%; }
+      .hero-art-body { min-height: 180px; }
+      .hero-art-body ascii-art { transform: scale(0.88); transform-origin: center; }
     }
   </style>
 </head>
@@ -1139,26 +1321,54 @@
   <main>
     <!-- ==================== LANDING / OVERVIEW TAB ==================== -->
     <div class="tab-pane active" id="tab-landing">
-      <!-- Compact Hero Box -->
+      <!-- Compact Hero Box with Side-by-Side Art & Mission Overview -->
       <div class="hero-box">
-        <img src="icons/logo.jpg" alt="Sabrina Logo" class="hero-avatar">
-        <div class="ascii-hero-wrap">
-          <pre class="ascii-art">
-+-------------------------------------------------------------------------------------------------------------+
-|  ███████╗ █████╗ ██████╗ ██████╗ ██╗███╗   ██╗ █████╗     ███████╗██╗  ██╗ █████╗ ██████╗ ███████╗███████╗  |
-|  ██╔════╝██╔══██╗██╔══██╗██╔══██╗██║████╗  ██║██╔══██╗    ██╔════╝██║  ██║██╔══██╗██╔══██╗██╔════╝██╔════╝  |
-|  ███████╗███████║██████╔╝██████╔╝██║██╔██╗ ██║███████║    ███████╗███████║███████║██████╔╝█████╗  ███████╗  |
-|  ╚════██║██╔══██║██╔══██╗██╔══██╗██║██║╚██╗██║██╔══██║    ╚════██║██╔══██║██╔══██║██╔══██╗██╔══╝  ╚════██║  |
-|  ███████║██║  ██║██████╔╝██║  ██║██║██║ ╚████║██║  ██║    ███████║██║  ██║██║  ██║██║  ██║███████╗███████║  |
-|  ╚══════╝╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝    ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝  |
-|                                                                                                             |
-|                           OPTICAL TRANSMISSION DIODE // ZERO PERSISTENCE RAM HEAP                           |
-+-------------------------------------------------------------------------------------------------------------+
-          </pre>
+        <div class="hero-split-layout">
+          <!-- Left Column: Branding & Semantic Overview -->
+          <div class="hero-text-col">
+            <div class="hero-brand-line">
+              <img src="icons/logo.jpg" alt="Sabrina Shares Logo" class="hero-avatar">
+              <div class="hero-brand-meta">
+                <div class="hero-eyebrow">[ PHYSICAL AIR-GAP PROTOCOL ]</div>
+                <h1 class="hero-title">SABRINA SHARES</h1>
+                <div class="hero-subtitle">Screen-to-Camera Optical Fountain Stream</div>
+              </div>
+            </div>
+            
+            <p class="hero-desc">
+              Transports files up to 10 MB across physically isolated hardware via screen-to-camera optical fountain streams. Completely unidirectional (optical diode). Zero network packets, zero Bluetooth, zero pairing, and zero persistent storage.
+            </p>
+
+            <div class="hero-badges">
+              <span class="hero-badge"><span class="badge-dot"></span> UNIDIRECTIONAL DIODE</span>
+              <span class="hero-badge"><span class="badge-dot"></span> SOLITON FOUNTAIN</span>
+              <span class="hero-badge"><span class="badge-dot"></span> RAM HEAP ONLY</span>
+              <span class="hero-badge"><span class="badge-dot"></span> AES-256-GCM READY</span>
+            </div>
+          </div>
+
+          <!-- Right Column: Animated ASCII Magic Binary-Stars Terminal -->
+          <div class="hero-art-col">
+            <div class="hero-art-window">
+              <div class="hero-art-header">
+                <div class="hero-art-dots">
+                  <span class="hero-art-dot dot-1"></span>
+                  <span class="hero-art-dot dot-2"></span>
+                  <span class="hero-art-dot dot-3"></span>
+                </div>
+                <span class="hero-art-title">binary-stars // ORBITAL STREAM</span>
+                <span class="hero-art-live-pill">&#9679; LIVE</span>
+              </div>
+              <div class="hero-art-body">
+                <ascii-art piece="binary-stars" size="6.5"></ascii-art>
+              </div>
+              <div class="hero-art-footer">
+                <span>KEPLER DUAL-STAR ELLIPSE</span>
+                <span>EMITTER &harr; SENSOR SYNC</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <p class="hero-desc">
-          Transports files up to 10 MB across physically isolated hardware via screen-to-camera optical fountain streams. Completely unidirectional (optical diode). Zero network packets, zero Bluetooth, zero pairing, and zero persistent storage.
-        </p>
       </div>
 
       <!-- 4 Primary Operation Cards -->

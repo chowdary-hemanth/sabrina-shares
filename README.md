@@ -40,10 +40,10 @@ The sender screen flashes high-contrast QR frames; the receiver's camera scans t
 
 ### Content Security Policy (CSP)
 ```http
-Content-Security-Policy: default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; manifest-src 'self'; worker-src 'self' blob:; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';
+Content-Security-Policy: default-src 'none'; script-src 'unsafe-inline' https://www.ascii-magic.com; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; manifest-src 'self'; worker-src 'self' blob:; connect-src 'self' https://www.ascii-magic.com; base-uri 'none'; form-action 'none'; frame-ancestors 'none';
 ```
-- `connect-src 'none'`: Browser refuses any `fetch()`, `XMLHttpRequest`, `WebSocket`, `EventSource`, or Beacon.
-- `manifest-src 'self'` & `worker-src 'self' blob:`: Permits the offline service worker and local blob Web Workers while forbidding any external code execution.
+- `connect-src 'self' https://www.ascii-magic.com`: Allows only local app shell revalidation and ASCII Magic binary-stars piece loading. Browser refuses all arbitrary analytics, tracking, or network exfiltration.
+- `manifest-src 'self'` & `worker-src 'self' blob:`: Permits the offline service worker and local blob Web Workers while forbidding any external worker execution.
 - `frame-ancestors 'none'`: Prevents clickjacking by forbidding embedding inside `<iframe>`.
 - `base-uri 'none'` & `form-action 'none'`: Blocks `<base>` tag injection and form submissions.
 
