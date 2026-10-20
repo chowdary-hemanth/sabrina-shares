@@ -1,5 +1,7 @@
 # Sabrina Shares
 
+sabrina-shares.hemanthchowdary7406.workers.dev
+
 **Sabrina Shares** is an offline, zero-persistence file transfer tool designed to transmit files of up to 10 MB between two devices across an optical visual data channel using a rapidly cycling stream of QR codes.
 
 The sender screen flashes high-contrast QR frames; the receiver's camera scans them and reconstructs the original file byte-for-byte.
