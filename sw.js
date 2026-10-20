@@ -11,7 +11,7 @@
  * - No background sync, no push notifications, no analytics.
  */
 
-const CACHE_NAME = 'sabrina-shell-v1.6.0';
+const CACHE_NAME = 'sabrina-shell-v1.7.0';
 
 const PRECACHE_ASSETS = [
   './',
@@ -29,15 +29,14 @@ const PRECACHE_ASSETS = [
   'sw.js'
 ];
 
-// Install: precache the static shell assets only
+// Install: precache the static shell assets only and skip waiting immediately
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(PRECACHE_ASSETS);
     })
   );
-  // Do NOT call self.skipWaiting() here automatically:
-  // We wait for the user to explicitly accept the update so mid-transfer sessions are not interrupted.
 });
 
 // Activate: clean up any obsolete caches from previous versions

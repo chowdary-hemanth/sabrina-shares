@@ -305,14 +305,14 @@
     .hero-box {
       position: relative;
       z-index: 1;
-      background: rgba(255, 253, 249, 0.82);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1.5px solid var(--card-border);
+      background: rgba(255, 253, 249, 0.52);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: 1.5px solid rgba(28, 31, 38, 0.18);
       border-radius: var(--radius);
-      padding: 24px 32px;
+      padding: 22px 28px;
       text-align: center;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 4px 24px rgba(28, 31, 38, 0.06);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -410,14 +410,14 @@
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      opacity: 0.38;
+      opacity: 0.58;
       mix-blend-mode: multiply;
     }
 
     .landing-bg-backdrop ascii-art {
       display: block;
       margin: auto;
-      transform: scale(1.18);
+      transform: scale(1.25);
       transform-origin: center center;
     }
 
@@ -433,10 +433,10 @@
     }
 
     .action-card {
-      background: rgba(255, 253, 249, 0.86);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      border: 1.5px solid var(--card-border);
+      background: rgba(255, 253, 249, 0.65);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: 1.5px solid rgba(28, 31, 38, 0.16);
       border-radius: var(--radius);
       padding: 22px 18px;
       display: flex;
@@ -448,7 +448,7 @@
     }
 
     .action-card:hover {
-      background: rgba(255, 255, 255, 0.96);
+      background: rgba(255, 255, 255, 0.95);
       transform: translateY(-4px);
       border-color: var(--text);
       box-shadow: 0 8px 24px rgba(28, 31, 38, 0.12);
@@ -3909,6 +3909,7 @@ Minimum version required to store current data is: `+o+`.
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').then((reg) => {
+          reg.update();
           if (reg.waiting) {
             showUpdateBanner(reg.waiting);
           }
