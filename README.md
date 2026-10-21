@@ -13,6 +13,10 @@ The sender screen flashes high-contrast QR frames; the receiver's camera scans t
 - **Progressive Web App (PWA)**: Installable to home screens; runs 100% offline in airplane mode.
 - **Verifiable Cryptographic Integrity**: Every shipped release file is tracked in `HASHES.txt` and verified in CI.
 
+
+<img width="2558" height="1597" alt="image" src="https://github.com/user-attachments/assets/f0b6bc9a-b10d-4eed-96ba-06e5ee5af4c0" />
+
+
 ---
 
 ## Security & Privacy Architecture
