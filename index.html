@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <!-- Hard constraint: Strict CSP with zero external network requests except optional web fonts and ASCII Magic runtime -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://www.ascii-magic.com; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; manifest-src 'self'; worker-src 'self' blob:; connect-src 'self' https://www.ascii-magic.com; base-uri 'none'; form-action 'none'; frame-ancestors 'none';">
   <link rel="manifest" href="manifest.webmanifest">
@@ -74,6 +74,7 @@
       color: var(--text);
       font-family: var(--font-family);
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       flex-direction: column;
       overflow-x: hidden;
@@ -305,10 +306,10 @@
     .hero-box {
       position: relative;
       z-index: 1;
-      background: rgba(255, 253, 249, 0.30);
-      backdrop-filter: blur(2px);
-      -webkit-backdrop-filter: blur(2px);
-      border: 1.5px solid rgba(28, 31, 38, 0.16);
+      background: rgba(255, 253, 249, 0.40);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: 1.5px solid rgba(28, 31, 38, 0.18);
       border-radius: var(--radius);
       padding: 22px 28px;
       text-align: center;
@@ -381,11 +382,12 @@
       font-weight: 700;
       letter-spacing: 0.6px;
       padding: 4px 10px;
-      background: rgba(237, 228, 209, 0.45);
+      background: rgba(237, 228, 209, 0.55);
       color: var(--text);
-      border: 1px solid rgba(28, 31, 38, 0.2);
+      border: 1px solid rgba(28, 31, 38, 0.22);
       border-radius: 4px;
-      backdrop-filter: blur(2px);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
     }
 
     .hero-badge .badge-dot {
@@ -398,12 +400,11 @@
 
     /* Ambient Background Animated ASCII Art */
     .landing-bg-backdrop {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 100%;
-      height: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
       pointer-events: none;
       user-select: none;
       z-index: 0;
@@ -434,10 +435,10 @@
     }
 
     .action-card {
-      background: rgba(255, 253, 249, 0.30);
-      backdrop-filter: blur(2px);
-      -webkit-backdrop-filter: blur(2px);
-      border: 1.5px solid rgba(28, 31, 38, 0.16);
+      background: rgba(255, 253, 249, 0.40);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: 1.5px solid rgba(28, 31, 38, 0.18);
       border-radius: var(--radius);
       padding: 22px 18px;
       display: flex;
@@ -445,11 +446,11 @@
       cursor: pointer;
       transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
       position: relative;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
     }
 
     .action-card:hover {
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(255, 255, 255, 0.88);
       transform: translateY(-4px);
       border-color: var(--text);
       box-shadow: 0 8px 24px rgba(28, 31, 38, 0.14);
@@ -467,30 +468,31 @@
       font-weight: 700;
       color: var(--text);
       letter-spacing: 1px;
-      background: rgba(237, 228, 209, 0.48);
+      background: rgba(237, 228, 209, 0.58);
       padding: 3px 8px;
       border-radius: 4px;
-      border: 1px solid rgba(28, 31, 38, 0.2);
-      backdrop-filter: blur(2px);
+      border: 1px solid rgba(28, 31, 38, 0.22);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
     }
 
     /* Transparent Action Card Buttons (Both Primary & Secondary) */
     .action-card .btn,
     .action-card .btn-primary,
     .action-card .btn-secondary {
-      background: rgba(245, 237, 221, 0.34);
-      backdrop-filter: blur(2px);
-      -webkit-backdrop-filter: blur(2px);
+      background: rgba(245, 237, 221, 0.45);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
       color: var(--text);
       border: 1.5px solid var(--text);
-      box-shadow: 0 2px 6px rgba(26, 28, 34, 0.05);
+      box-shadow: 0 2px 6px rgba(26, 28, 34, 0.06);
       font-weight: 700;
     }
 
     .action-card .btn:hover,
     .action-card .btn-primary:hover,
     .action-card .btn-secondary:hover {
-      background: rgba(233, 220, 191, 0.85);
+      background: rgba(233, 220, 191, 0.90);
       border-color: var(--text);
       box-shadow: 0 4px 14px rgba(26, 28, 34, 0.16);
     }
@@ -510,7 +512,7 @@
 
     .action-card-desc {
       font-size: 13.5px;
-      color: var(--text-muted);
+      color: #2b2f3a;
       line-height: 1.5;
       margin-bottom: 18px;
       flex: 1;
@@ -1180,21 +1182,205 @@
       margin-top: 14px;
     }
 
-    /* Responsive */
+    /* Responsive & Mobile Phone Calibration */
     @media (max-width: 900px) {
+      #tab-landing.active {
+        justify-content: flex-start;
+        padding-top: 8px;
+        padding-bottom: 24px;
+        overflow-y: visible;
+      }
       .action-cards-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+      }
+      .landing-bg-backdrop ascii-art {
+        transform: scale(0.95);
       }
     }
 
     @media (max-width: 600px) {
-      header { padding: 10px 14px; }
-      main { padding: 12px 10px; }
-      .action-cards-grid { grid-template-columns: 1fr; }
-      .canvas-container { padding: 12px; }
-      .stream-hud { gap: 10px; padding: 10px; }
-      .hud-stat-val { font-size: 13px; }
-      .landing-bg-backdrop ascii-art { transform: scale(0.65); }
+      header {
+        padding: 8px 12px;
+        padding-top: max(8px, env(safe-area-inset-top));
+      }
+
+      .brand {
+        gap: 8px;
+      }
+
+      .brand-logo-img {
+        width: 32px;
+        height: 32px;
+        border-radius: 5px;
+      }
+
+      .brand-title {
+        font-size: 14px;
+        letter-spacing: 0.4px;
+      }
+
+      .brand-subtitle {
+        display: none; /* Prevents header clutter & horizontal overflow on mobile phones */
+      }
+
+      .header-actions {
+        gap: 6px;
+      }
+
+      .header-actions .btn {
+        padding: 6px 10px;
+        font-size: 11px;
+        gap: 4px;
+        border-radius: 4px;
+      }
+
+      main {
+        padding: 10px 12px;
+        padding-bottom: max(24px, env(safe-area-inset-bottom));
+      }
+
+      /* Hero section mobile tuning */
+      .hero-box {
+        padding: 16px 12px;
+        gap: 8px;
+        border-radius: 8px;
+      }
+
+      .hero-avatar {
+        width: 68px;
+        height: 68px;
+        margin-bottom: 2px;
+      }
+
+      .hero-eyebrow {
+        font-size: 9px;
+        letter-spacing: 0.8px;
+      }
+
+      .hero-title {
+        font-size: 24px;
+        letter-spacing: 1px;
+        line-height: 1.15;
+      }
+
+      .hero-desc {
+        font-size: 12.5px;
+        line-height: 1.45;
+        max-width: 100%;
+      }
+
+      .hero-badges {
+        gap: 5px;
+        margin-top: 2px;
+      }
+
+      .hero-badge {
+        font-size: 9px;
+        padding: 3px 7px;
+        gap: 4px;
+      }
+
+      .hero-badge .badge-dot {
+        width: 5px;
+        height: 5px;
+      }
+
+      /* Action cards mobile tuning */
+      .action-cards-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-top: 2px;
+      }
+
+      .action-card {
+        padding: 16px 14px;
+        border-radius: 8px;
+      }
+
+      .action-card-header {
+        margin-bottom: 8px;
+      }
+
+      .action-card-badge {
+        font-size: 11px;
+        padding: 2px 7px;
+      }
+
+      .action-card-icon {
+        font-size: 20px;
+      }
+
+      .action-card-title {
+        font-size: 15px;
+        margin-bottom: 6px;
+      }
+
+      .action-card-desc {
+        font-size: 12.5px;
+        line-height: 1.45;
+        margin-bottom: 14px;
+      }
+
+      .action-card .btn {
+        padding: 12px 14px;
+        font-size: 13px;
+        min-height: 44px; /* Optimal touch target */
+        width: 100%;
+      }
+
+      /* Mode views phone calibration */
+      .card {
+        padding: 14px 12px;
+        margin-bottom: 14px;
+      }
+
+      .viewfinder-card {
+        max-height: 300px;
+        margin-bottom: 14px;
+      }
+
+      .btn-back-home {
+        padding: 8px 12px;
+        font-size: 12px;
+        margin-bottom: 12px;
+      }
+
+      .canvas-container {
+        padding: 8px;
+      }
+
+      .stream-hud {
+        gap: 6px;
+        padding: 8px;
+      }
+
+      .hud-stat-box {
+        min-width: 45%;
+        padding: 6px 8px;
+      }
+
+      .hud-stat-val {
+        font-size: 12px;
+      }
+
+      /* Calibrate ASCII Magic background for mobile phone screens */
+      .landing-bg-backdrop ascii-art {
+        transform: scale(0.52);
+        transform-origin: center center;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .hero-title {
+        font-size: 20px;
+      }
+      .brand-title {
+        font-size: 13px;
+      }
+      .hero-box {
+        padding: 14px 10px;
+      }
     }
   </style>
 </head>
